@@ -5,6 +5,9 @@ namespace App\Http\Middleware;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
+/**
+ * Aplica a verificação de acesso ou de contexto de pedido de `HandleInertiaRequests` antes de a requisição chegar ao controlador.
+ */
 class HandleInertiaRequests extends Middleware
 {
     /**

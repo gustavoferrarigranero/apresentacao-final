@@ -8,6 +8,9 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
 use Tests\TestCase;
 
+/**
+ * Agrupa os testes de `TwoFactorChallengeTest` para verificar o comportamento esperado da aplicação.
+ */
 class TwoFactorChallengeTest extends TestCase
 {
     use RefreshDatabase;

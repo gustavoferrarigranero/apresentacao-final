@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\URL;
 use Laravel\Fortify\Features;
 use Tests\TestCase;
 
+/**
+ * Agrupa os testes de `EmailVerificationTest` para verificar o comportamento esperado da aplicação.
+ */
 class EmailVerificationTest extends TestCase
 {
     use RefreshDatabase;

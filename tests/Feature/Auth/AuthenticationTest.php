@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Fortify\Features;
 use Tests\TestCase;
 
+/**
+ * Agrupa os testes de `AuthenticationTest` para verificar o comportamento esperado da aplicação.
+ */
 class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;

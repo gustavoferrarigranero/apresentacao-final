@@ -6,6 +6,9 @@ use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
 
+/**
+ * Reúne comportamentos reutilizáveis de `ProfileValidationRules` para partilhar validações ou operações entre componentes da aplicação.
+ */
 trait ProfileValidationRules
 {
     /**

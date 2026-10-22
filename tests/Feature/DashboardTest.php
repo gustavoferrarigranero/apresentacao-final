@@ -6,6 +6,9 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Agrupa os testes de `DashboardTest` para verificar o comportamento esperado da aplicação.
+ */
 class DashboardTest extends TestCase
 {
     use RefreshDatabase;

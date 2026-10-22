@@ -1,12 +1,15 @@
 <?php
 
-namespace App\Actions\Fortify;
+namespace App\Domains\Users\Actions\Fortify;
 
 use App\Concerns\PasswordValidationRules;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\ResetsUserPasswords;
 
+/**
+ * Executa o caso de uso `ResetUserPassword` no domínio de utilizadores, mantendo a operação de negócio fora da camada HTTP.
+ */
 class ResetUserPassword implements ResetsUserPasswords
 {
     use PasswordValidationRules;

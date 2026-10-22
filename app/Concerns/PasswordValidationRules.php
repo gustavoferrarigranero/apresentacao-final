@@ -5,6 +5,9 @@ namespace App\Concerns;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rules\Password;
 
+/**
+ * Reúne comportamentos reutilizáveis de `PasswordValidationRules` para partilhar validações ou operações entre componentes da aplicação.
+ */
 trait PasswordValidationRules
 {
     /**

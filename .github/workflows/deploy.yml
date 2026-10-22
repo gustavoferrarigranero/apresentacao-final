@@ -1,0 +1,226 @@
+name: Delivery Hub Deploy
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      deploy_target:
+        description: Ambiente de publicação (apenas a partir de main)
+        type: choice
+        required: true
+        default: none
+        options:
+          - none
+          - forge
+          - vapor
+
+permissions:
+  contents: read
+
+concurrency:
+  group: delivery-hub-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  php-tests:
+    name: PHP tests and static analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          extensions: mbstring, pdo_sqlite, sqlite3, intl, zip
+          coverage: none
+
+      - name: Configure test environment
+        run: cp .env.example .env
+
+      - name: Validate Composer dependencies
+        run: composer validate --no-check-publish
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Generate application key
+        run: php artisan key:generate
+
+      - name: Run application tests
+        run: php artisan test
+
+      - name: Check PHP formatting
+        run: >-
+          vendor/bin/pint --test
+          app/Console/Commands/DispatchDailyOrderSummary.php
+          app/Events/OrderStatusUpdated.php
+          app/Http/Controllers/OrderController.php
+          app/Http/Middleware/RequestCorrelationId.php
+          app/Jobs/BuildDailyOrderSummary.php
+          app/Providers/AppServiceProvider.php
+          bootstrap/app.php
+          config/app.php
+          config/broadcasting.php
+          config/logging.php
+          routes/api.php
+          routes/channels.php
+          tests/Feature/OperationsAndObservabilityTest.php
+
+      - name: Analyze added PHP infrastructure
+        run: >-
+          vendor/bin/phpstan analyse
+          app/Console/Commands/DispatchDailyOrderSummary.php
+          app/Events/OrderStatusUpdated.php
+          app/Http/Middleware/RequestCorrelationId.php
+          app/Jobs/BuildDailyOrderSummary.php
+          --memory-limit=512M
+
+  frontend:
+    name: Front-end checks and production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP for Wayfinder
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install Laravel dependencies
+        run: |
+          cp .env.example .env
+          composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Generate application key
+        run: php artisan key:generate
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Lint and type-check
+        run: |
+          npm run check
+          npm run types:check
+
+      - name: Build production assets
+        run: npm run build
+        env:
+          VITE_APP_NAME: Delivery Hub
+          VITE_REVERB_APP_KEY: local-key
+          VITE_REVERB_HOST: localhost
+          VITE_REVERB_PORT: 8080
+          VITE_REVERB_SCHEME: http
+
+  containers:
+    name: Validate and build Docker images
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Configure local Compose environment
+        run: cp .env.example .env
+
+      - name: Validate Docker Compose
+        run: docker compose config --quiet
+
+      - name: Build application and web images
+        run: docker compose build --parallel app web
+
+      - name: Start Docker data services and application
+        run: docker compose -p delivery-hub-ci up --detach mysql redis phpmyadmin app
+
+      - name: Migrate MySQL and verify Redis/phpMyAdmin
+        run: |
+          docker compose -p delivery-hub-ci exec -T app php artisan migrate --force
+          docker compose -p delivery-hub-ci exec -T redis redis-cli ping | grep -qx PONG
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8081/ >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::phpMyAdmin did not become ready."
+          exit 1
+
+      - name: Stop Docker test stack
+        if: always()
+        run: docker compose -p delivery-hub-ci down --volumes --remove-orphans
+
+  deploy:
+    name: Deploy to Forge or Vapor
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      inputs.deploy_target != 'none' &&
+      github.ref == 'refs/heads/main'
+    needs:
+      - php-tests
+      - frontend
+      - containers
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: ${{ inputs.deploy_target == 'forge' && 'production-forge' || 'production-vapor' }}
+    steps:
+      - name: Checkout validated revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP for deployment tools
+        if: inputs.deploy_target == 'vapor'
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          coverage: none
+
+      - name: Trigger Forge deployment
+        if: inputs.deploy_target == 'forge'
+        env:
+          FORGE_DEPLOYMENT_WEBHOOK: ${{ secrets.FORGE_DEPLOYMENT_WEBHOOK }}
+        run: |
+          if [ -z "$FORGE_DEPLOYMENT_WEBHOOK" ]; then
+            echo "::error::Configure FORGE_DEPLOYMENT_WEBHOOK in the production-forge environment."
+            exit 1
+          fi
+          curl --fail --silent --show-error --request POST "$FORGE_DEPLOYMENT_WEBHOOK"
+
+      - name: Deploy to Vapor production
+        if: inputs.deploy_target == 'vapor'
+        env:
+          VAPOR_API_TOKEN: ${{ secrets.VAPOR_API_TOKEN }}
+        run: |
+          if [ -z "$VAPOR_API_TOKEN" ]; then
+            echo "::error::Configure VAPOR_API_TOKEN in the production-vapor environment."
+            exit 1
+          fi
+          composer global require laravel/vapor-cli --no-interaction
+          echo "$(composer global config bin-dir --absolute)" >> "$GITHUB_PATH"
+          vapor deploy production --no-interaction

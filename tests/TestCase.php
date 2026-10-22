@@ -5,6 +5,9 @@ namespace Tests;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Laravel\Fortify\Features;
 
+/**
+ * Agrupa os testes de `TestCase` para verificar o comportamento esperado da aplicação.
+ */
 abstract class TestCase extends BaseTestCase
 {
     protected function skipUnlessFortifyHas(string $feature, ?string $message = null): void

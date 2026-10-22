@@ -6,6 +6,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Fortify\Features;
 use Tests\TestCase;
 
+/**
+ * Agrupa os testes de `RegistrationTest` para verificar o comportamento esperado da aplicação.
+ */
 class RegistrationTest extends TestCase
 {
     use RefreshDatabase;

@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Notification;
 use Laravel\Fortify\Features;
 use Tests\TestCase;
 
+/**
+ * Agrupa os testes de `PasswordResetTest` para verificar o comportamento esperado da aplicação.
+ */
 class PasswordResetTest extends TestCase
 {
     use RefreshDatabase;

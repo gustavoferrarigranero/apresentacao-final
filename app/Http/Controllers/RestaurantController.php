@@ -2,64 +2,72 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Restaurant;
+use App\Domains\Restaurants\Data\CreateRestaurantData;
+use App\Domains\Restaurants\Data\RestaurantFiltersData;
+use App\Domains\Restaurants\Data\UpdateRestaurantData;
+use App\Http\Requests\Api\Restaurants\CreateRestaurantRequest;
+use App\Http\Requests\Api\Restaurants\IndexRestaurantRequest;
+use App\Http\Requests\Api\Restaurants\UpdateRestaurantRequest;
+use App\Http\Resources\RestaurantResource;
+use App\Domains\Restaurants\Services\RestaurantService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
+/**
+ * Recebe pedidos HTTP em `RestaurantController`, delega o processamento à camada de domínio e devolve respostas para a interface ou para o cliente da API.
+ */
 class RestaurantController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct(private readonly RestaurantService $restaurantService)
     {
-        //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(IndexRestaurantRequest $request): AnonymousResourceCollection
     {
-        //
+        return RestaurantResource::collection(
+            $this->restaurantService->index(
+                $request->user(),
+                RestaurantFiltersData::fromValidated($request->validated()),
+            )
+        );
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(CreateRestaurantRequest $request): JsonResponse
     {
-        //
+        $restaurant = $this->restaurantService->store(
+            CreateRestaurantData::fromValidated($request->validated()),
+        );
+
+        return (new RestaurantResource($restaurant))
+            ->additional(['message' => 'Restaurante criado com sucesso.'])
+            ->response()
+            ->setStatusCode(201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Restaurant $restaurant)
+    public function show(int $restaurant): RestaurantResource
     {
-        //
+        return new RestaurantResource($this->restaurantService->showPublic($restaurant));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Restaurant $restaurant)
+    public function update(UpdateRestaurantRequest $request, int $restaurant): RestaurantResource
     {
-        //
+        return (new RestaurantResource(
+            $this->restaurantService->update(
+                $request->user(),
+                $restaurant,
+                UpdateRestaurantData::fromValidated($request->validated()),
+            )
+        ))->additional(['message' => 'Restaurante atualizado com sucesso.']);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Restaurant $restaurant)
+    public function destroy(Request $request, int $restaurant): RestaurantResource
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Restaurant $restaurant)
-    {
-        //
+        return (new RestaurantResource(
+            $this->restaurantService->delete(
+                $request->user(),
+                $restaurant,
+            )
+        ))->additional(['message' => 'Restaurante desativado com sucesso.']);
     }
 }

@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Aplica a verificação de acesso ou de contexto de pedido de `HandleAppearance` antes de a requisição chegar ao controlador.
+ */
 class HandleAppearance
 {
     /**

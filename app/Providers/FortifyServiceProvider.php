@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Actions\Fortify\CreateNewUser;
-use App\Actions\Fortify\ResetUserPassword;
+use App\Domains\Users\Actions\Fortify\CreateNewUser;
+use App\Domains\Users\Actions\Fortify\ResetUserPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -14,6 +14,9 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 
+/**
+ * Regista ou configura os serviços e comportamentos da aplicação associados a `FortifyServiceProvider` durante o arranque do Laravel.
+ */
 class FortifyServiceProvider extends ServiceProvider
 {
     /**

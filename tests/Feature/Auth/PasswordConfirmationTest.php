@@ -7,6 +7,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
+/**
+ * Agrupa os testes de `PasswordConfirmationTest` para verificar o comportamento esperado da aplicação.
+ */
 class PasswordConfirmationTest extends TestCase
 {
     use RefreshDatabase;

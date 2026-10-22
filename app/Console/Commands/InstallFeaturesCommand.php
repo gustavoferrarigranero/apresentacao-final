@@ -10,6 +10,9 @@ use Laravel\Chisel\Script;
 use function Laravel\Prompts\multiselect;
 use function Laravel\Prompts\spin;
 
+/**
+ * Implementa o comando de consola `InstallFeaturesCommand` para executar uma tarefa administrativa da aplicação.
+ */
 class InstallFeaturesCommand extends Command
 {
     /**

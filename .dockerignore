@@ -1,0 +1,17 @@
+# Não coloca segredos locais, dependências instaladas ou dados pessoais nas imagens.
+.env
+.env.*
+!.env.example
+auth.json
+.git
+.github
+.idea
+.vscode
+node_modules
+vendor
+storage
+tests
+coverage
+public/build
+public/hot
+*.log

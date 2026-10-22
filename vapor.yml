@@ -1,0 +1,42 @@
+# Substitua o identificador de exemplo pelo ID atribuído pelo comando vapor init.
+id: 0
+name: delivery-hub
+environments:
+    staging:
+        runtime: php-8.3
+        memory: 1024
+        cli-memory: 512
+        timeout: 30
+        queue: staging-queue
+        database: delivery-hub-db
+        cache: delivery-hub-cache
+        storage: delivery-hub-storage
+        scheduler: true
+        build:
+            # Prepara o runtime nativo de Lambda; não inicia serviços persistentes nesta imagem.
+            - 'composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader'
+            - 'npm ci'
+            - 'npm run build'
+            - 'php artisan event:cache'
+        deploy:
+            # A migração corre antes de Vapor ativar a nova versão.
+            - 'php artisan migrate --force'
+    production:
+        runtime: php-8.3
+        memory: 1024
+        cli-memory: 512
+        timeout: 30
+        queue: production-queue
+        database: delivery-hub-db
+        cache: delivery-hub-cache
+        storage: delivery-hub-storage
+        scheduler: true
+        build:
+            # Produz dependências/assets imutáveis no runner de CI antes do deploy atómico.
+            - 'composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader'
+            - 'npm ci'
+            - 'npm run build'
+            - 'php artisan event:cache'
+        deploy:
+            # Aplica alterações compatíveis antes de disponibilizar a versão aos utilizadores.
+            - 'php artisan migrate --force'

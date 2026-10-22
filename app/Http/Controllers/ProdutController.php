@@ -2,64 +2,73 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Produt;
+use App\Domains\Products\Data\ProductData;
+use App\Domains\Products\Services\ProductService;
+use App\Http\Requests\Api\Products\IndexProductRequest;
+use App\Http\Requests\Api\Products\StoreProductRequest;
+use App\Http\Requests\Api\Products\UpdateProductRequest;
+use App\Http\Resources\ProductResource;
+use App\Models\Restaurant;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
+/**
+ * Recebe pedidos HTTP em `ProdutController`, delega o processamento à camada de domínio e devolve respostas para a interface ou para o cliente da API.
+ */
 class ProdutController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct(private readonly ProductService $productService)
     {
-        //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(IndexProductRequest $request, Restaurant $restaurant): AnonymousResourceCollection
     {
-        //
+        return ProductResource::collection($this->productService->index(
+            (int) $restaurant->id,
+            $request->validated('name'),
+            (int) $request->validated('per_page', 10),
+            activeOnly: true,
+        ));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function show(Restaurant $restaurant, int $product): ProductResource
     {
-        //
+        return new ProductResource($this->productService->show(
+            (int) $restaurant->id,
+            $product,
+            activeOnly: true,
+        ));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Produt $produt)
+    public function store(StoreProductRequest $request): JsonResponse
     {
-        //
+        $product = $this->productService->store(
+            (int) $request->user()->restaurant_id,
+            ProductData::fromValidated($request->validated()),
+        );
+
+        return (new ProductResource($product))
+            ->additional(['message' => 'Produto criado com sucesso.'])
+            ->response()
+            ->setStatusCode(201);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Produt $produt)
+    public function update(UpdateProductRequest $request, int $product): ProductResource
     {
-        //
+        return (new ProductResource($this->productService->update(
+            (int) $request->user()->restaurant_id,
+            $product,
+            ProductData::fromValidated($request->validated()),
+        )))->additional(['message' => 'Produto atualizado com sucesso.']);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Produt $produt)
+    public function destroy(Request $request, int $product): ProductResource
     {
-        //
+        return (new ProductResource($this->productService->delete(
+            (int) $request->user()->restaurant_id,
+            $product,
+        )))->additional(['message' => 'Produto desativado com sucesso.']);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Produt $produt)
-    {
-        //
-    }
 }

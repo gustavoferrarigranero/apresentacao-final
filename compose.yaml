@@ -1,0 +1,174 @@
+# A stack local inclui aplicação, filas, WebSockets e ferramentas de administração de dados.
+name: delivery-hub
+
+x-laravel-environment: &laravel-environment
+    APP_ENV: local
+    APP_NAME: Delivery Hub
+    DB_CONNECTION: mysql
+    DB_HOST: mysql
+    DB_PORT: 3306
+    DB_DATABASE: ${DB_DATABASE:-delivery_hub}
+    DB_USERNAME: ${DB_USERNAME:-delivery_hub}
+    DB_PASSWORD: ${DB_PASSWORD:-delivery-hub-local}
+    QUEUE_CONNECTION: redis
+    CACHE_STORE: redis
+    SESSION_DRIVER: redis
+    BROADCAST_CONNECTION: reverb
+    REDIS_HOST: redis
+    REVERB_HOST: reverb
+    REVERB_PORT: 8080
+    REVERB_SCHEME: http
+    REVERB_APP_ID: ${REVERB_APP_ID:-local}
+    REVERB_APP_KEY: ${REVERB_APP_KEY:-local-key}
+    REVERB_APP_SECRET: ${REVERB_APP_SECRET:-local-secret}
+    REVERB_SERVER_HOST: 0.0.0.0
+
+services:
+    app:
+        build:
+            context: .
+            target: app
+            args:
+                VITE_APP_NAME: '${VITE_APP_NAME:-Delivery Hub}'
+                VITE_REVERB_APP_KEY: ${VITE_REVERB_APP_KEY:-${REVERB_APP_KEY:-local-key}}
+                VITE_REVERB_HOST: ${VITE_REVERB_HOST:-localhost}
+                VITE_REVERB_PORT: ${VITE_REVERB_PORT:-8080}
+                VITE_REVERB_SCHEME: ${VITE_REVERB_SCHEME:-http}
+        image: delivery-hub-app:local
+        env_file:
+            - .env
+        environment: *laravel-environment
+        depends_on:
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        volumes:
+            - app-storage:/var/www/html/storage
+        restart: unless-stopped
+
+    web:
+        build:
+            context: .
+            target: web
+        image: delivery-hub-web:local
+        depends_on:
+            - app
+        ports:
+            - '${APP_HTTP_PORT:-8000}:80'
+        volumes:
+            - app-storage:/var/www/html/storage:ro
+        restart: unless-stopped
+
+    worker:
+        image: delivery-hub-app:local
+        env_file:
+            - .env
+        environment: *laravel-environment
+        command:
+            [
+                'php',
+                'artisan',
+                'queue:work',
+                'redis',
+                '--queue=default,reports',
+                '--sleep=1',
+                '--tries=3',
+                '--timeout=90',
+            ]
+        depends_on:
+            app:
+                condition: service_started
+        volumes:
+            - app-storage:/var/www/html/storage
+        restart: unless-stopped
+
+    scheduler:
+        image: delivery-hub-app:local
+        env_file:
+            - .env
+        environment: *laravel-environment
+        command: ['php', 'artisan', 'schedule:work']
+        depends_on:
+            app:
+                condition: service_started
+        volumes:
+            - app-storage:/var/www/html/storage
+        restart: unless-stopped
+
+    reverb:
+        image: delivery-hub-app:local
+        env_file:
+            - .env
+        environment: *laravel-environment
+        command:
+            ['php', 'artisan', 'reverb:start', '--host=0.0.0.0', '--port=8080']
+        ports:
+            - '${REVERB_PORT:-8080}:8080'
+        depends_on:
+            app:
+                condition: service_started
+        volumes:
+            - app-storage:/var/www/html/storage
+        restart: unless-stopped
+
+    mysql:
+        image: mysql:8.4
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE:-delivery_hub}
+            MYSQL_USER: ${DB_USERNAME:-delivery_hub}
+            MYSQL_PASSWORD: ${DB_PASSWORD:-delivery-hub-local}
+            MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root-local-only}
+        healthcheck:
+            test:
+                [
+                    'CMD',
+                    'mysqladmin',
+                    'ping',
+                    '-h',
+                    '127.0.0.1',
+                    '-uroot',
+                    '-p${DB_ROOT_PASSWORD:-root-local-only}',
+                ]
+            interval: 5s
+            timeout: 3s
+            retries: 20
+        volumes:
+            - mysql-data:/var/lib/mysql
+        ports:
+            - '127.0.0.1:${MYSQL_FORWARD_PORT:-3307}:3306'
+        restart: unless-stopped
+
+    redis:
+        image: redis:7-alpine
+        command: ['redis-server', '--appendonly', 'yes']
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'ping']
+            interval: 5s
+            timeout: 3s
+            retries: 20
+        volumes:
+            - redis-data:/data
+        ports:
+            - '127.0.0.1:${REDIS_FORWARD_PORT:-6379}:6379'
+        restart: unless-stopped
+
+    phpmyadmin:
+        image: phpmyadmin:5-apache
+        environment:
+            PMA_HOST: mysql
+            PMA_PORT: 3306
+            PMA_ARBITRARY: 0
+            UPLOAD_LIMIT: 64M
+        depends_on:
+            mysql:
+                condition: service_healthy
+        ports:
+            - '127.0.0.1:${PHPMYADMIN_PORT:-8081}:80'
+        restart: unless-stopped
+
+volumes:
+    # Mantém a base de dados, Redis e uploads entre reinícios dos contentores.
+    mysql-data:
+    redis-data:
+    app-storage:

@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Notification;
 use Laravel\Fortify\Features;
 use Tests\TestCase;
 
+/**
+ * Agrupa os testes de `VerificationNotificationTest` para verificar o comportamento esperado da aplicação.
+ */
 class VerificationNotificationTest extends TestCase
 {
     use RefreshDatabase;

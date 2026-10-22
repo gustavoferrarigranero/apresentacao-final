@@ -9,6 +9,9 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
 use Tests\TestCase;
 
+/**
+ * Agrupa os testes de `SecurityTest` para verificar o comportamento esperado da aplicação.
+ */
 class SecurityTest extends TestCase
 {
     use RefreshDatabase;

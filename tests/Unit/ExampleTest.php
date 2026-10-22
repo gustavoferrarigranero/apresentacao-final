@@ -5,6 +5,9 @@ namespace Tests\Unit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Agrupa os testes de `ExampleTest` para verificar o comportamento esperado da aplicação.
+ */
 class ExampleTest extends TestCase
 {
     use RefreshDatabase;

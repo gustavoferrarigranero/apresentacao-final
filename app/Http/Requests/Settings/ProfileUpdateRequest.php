@@ -6,6 +6,9 @@ use App\Concerns\ProfileValidationRules;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Define e valida os dados de entrada aceites por `ProfileUpdateRequest` antes de permitir que o controlador execute a operação.
+ */
 class ProfileUpdateRequest extends FormRequest
 {
     use ProfileValidationRules;
