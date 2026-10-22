@@ -117,6 +117,9 @@ jobs:
       - name: Generate application key
         run: php artisan key:generate
 
+      - name: Generate Wayfinder TypeScript routes and actions
+        run: php artisan wayfinder:generate --with-form
+
       - name: Install JavaScript dependencies
         run: npm ci
 
