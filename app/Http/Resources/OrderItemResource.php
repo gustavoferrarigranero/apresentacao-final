@@ -2,14 +2,18 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Order_iten;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * Define a representação JSON de `OrderItemResource` enviada ao front-end; alterações aos campos expostos devem ser refletidas nos consumidores da API.
+ *
+ * @mixin Order_iten
  */
 class OrderItemResource extends JsonResource
 {
+    /** @return array<string, mixed> */
     public function toArray(Request $request): array
     {
         return [

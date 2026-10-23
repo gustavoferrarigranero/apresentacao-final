@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Domains\Users\Enums\UserRole;
 use App\Models\Category;
 use App\Models\Restaurant;
 use App\Models\User;
-use App\Domains\Users\Enums\UserRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

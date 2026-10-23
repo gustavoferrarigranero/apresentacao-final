@@ -13,14 +13,12 @@ use Illuminate\Auth\Access\AuthorizationException;
  */
 final readonly class CreateRestaurantStaffAction
 {
-    public function __construct(private UserRepository $userRepository)
-    {
-    }
+    public function __construct(private UserRepository $userRepository) {}
 
     public function execute(User $actor, CreateStaffData $data): User
     {
         if ($actor->role !== UserRole::RESTAURANT_ADMIN->value || $actor->restaurant_id === null) {
-            throw new AuthorizationException();
+            throw new AuthorizationException;
         }
 
         return $this->userRepository->createRestaurantStaff((int) $actor->restaurant_id, $data);

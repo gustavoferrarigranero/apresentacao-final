@@ -20,9 +20,9 @@ final readonly class ProductService
         private CreateProductAction $createProductAction,
         private UpdateProductAction $updateProductAction,
         private DeactivateProductAction $deactivateProductAction,
-    ) {
-    }
+    ) {}
 
+    /** @return LengthAwarePaginator<int, Produt> */
     public function index(int $restaurantId, ?string $name, int $perPage, bool $activeOnly = false): LengthAwarePaginator
     {
         return $this->listProductsAction->execute($restaurantId, $name, $perPage, $activeOnly);

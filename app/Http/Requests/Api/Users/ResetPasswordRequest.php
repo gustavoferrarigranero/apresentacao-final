@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\Users;
 
 use App\Domains\Users\Data\PasswordResetData;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -10,6 +11,7 @@ use Illuminate\Foundation\Http\FormRequest;
  */
 class ResetPasswordRequest extends FormRequest
 {
+    /** @return array<string, ValidationRule|array<mixed>|string> */
     public function rules(): array
     {
         return [

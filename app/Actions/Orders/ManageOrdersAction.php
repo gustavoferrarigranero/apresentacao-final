@@ -18,15 +18,15 @@ use Throwable;
  */
 final readonly class ManageOrdersAction
 {
-    public function __construct(private OrderRepository $orderRepository)
-    {
-    }
+    public function __construct(private OrderRepository $orderRepository) {}
 
+    /** @return LengthAwarePaginator<int, Order> */
     public function forCustomer(int $customerId, int $perPage): LengthAwarePaginator
     {
         return $this->orderRepository->forCustomer($customerId, $perPage);
     }
 
+    /** @return LengthAwarePaginator<int, Order> */
     public function forRestaurant(int $restaurantId, int $perPage): LengthAwarePaginator
     {
         return $this->orderRepository->forRestaurant($restaurantId, $perPage);

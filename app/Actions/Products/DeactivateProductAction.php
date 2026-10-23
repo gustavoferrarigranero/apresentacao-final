@@ -14,9 +14,7 @@ use Throwable;
  */
 final readonly class DeactivateProductAction
 {
-    public function __construct(private ProductRepository $productRepository)
-    {
-    }
+    public function __construct(private ProductRepository $productRepository) {}
 
     public function execute(int $restaurantId, int $productId): Produt
     {

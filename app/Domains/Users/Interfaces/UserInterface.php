@@ -8,13 +8,13 @@ use App\Models\User;
 
 interface UserInterface
 {
-
     public function createCustomer(CustomerRegistrationData $data): User;
 
     public function findByEmail(string $email): ?User;
 
     public function createRestaurantStaff(int $restaurantId, CreateStaffData $data): User;
 
+    /** @param array{name?: string, email?: string} $attributes */
     public function updateProfile(User $user, array $attributes): User;
 
     public function updatePassword(User $user, string $password): void;

@@ -13,9 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class RestaurantUserController extends Controller
 {
-    public function __construct(private readonly CreateRestaurantStaffAction $createRestaurantStaffAction)
-    {
-    }
+    public function __construct(private readonly CreateRestaurantStaffAction $createRestaurantStaffAction) {}
 
     public function store(StoreRestaurantUserRequest $request): JsonResponse
     {

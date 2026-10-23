@@ -2,11 +2,14 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Restaurant;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * Define a representação JSON de `RestaurantResource` enviada ao front-end; alterações aos campos expostos devem ser refletidas nos consumidores da API.
+ *
+ * @mixin Restaurant
  */
 class RestaurantResource extends JsonResource
 {

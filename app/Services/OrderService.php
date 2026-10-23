@@ -14,15 +14,15 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
  */
 final readonly class OrderService
 {
-    public function __construct(private ManageOrdersAction $manageOrdersAction)
-    {
-    }
+    public function __construct(private ManageOrdersAction $manageOrdersAction) {}
 
+    /** @return LengthAwarePaginator<int, Order> */
     public function customerOrders(int $customerId, int $perPage): LengthAwarePaginator
     {
         return $this->manageOrdersAction->forCustomer($customerId, $perPage);
     }
 
+    /** @return LengthAwarePaginator<int, Order> */
     public function restaurantOrders(int $restaurantId, int $perPage): LengthAwarePaginator
     {
         return $this->manageOrdersAction->forRestaurant($restaurantId, $perPage);

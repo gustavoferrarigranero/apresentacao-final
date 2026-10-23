@@ -17,14 +17,12 @@ use Throwable;
  */
 final readonly class DeactivateRestaurantAction
 {
-    public function __construct(private RestaurantRepository $restaurantRepository)
-    {
-    }
+    public function __construct(private RestaurantRepository $restaurantRepository) {}
 
     public function execute(User $actor, int $restaurantId): Restaurant
     {
         if (! in_array($actor->role, [UserRole::SUPER_ADMIN->value, UserRole::RESTAURANT_ADMIN->value], true)) {
-            throw new AuthorizationException();
+            throw new AuthorizationException;
         }
 
         try {

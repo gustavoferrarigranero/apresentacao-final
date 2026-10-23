@@ -10,12 +10,10 @@ use App\Repositories\UserRepository;
  */
 final readonly class UpdateUserProfileAction
 {
-    public function __construct(private UserRepository $userRepository)
-    {
-    }
+    public function __construct(private UserRepository $userRepository) {}
 
     /**
-     * @param array{name?: string, email?: string} $attributes
+     * @param  array{name?: string, email?: string}  $attributes
      */
     public function execute(User $user, array $attributes): User
     {

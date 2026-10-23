@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\Users;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -9,6 +10,7 @@ use Illuminate\Foundation\Http\FormRequest;
  */
 class ForgotPasswordRequest extends FormRequest
 {
+    /** @return array<string, ValidationRule|array<mixed>|string> */
     public function rules(): array
     {
         return ['email' => ['required', 'email']];

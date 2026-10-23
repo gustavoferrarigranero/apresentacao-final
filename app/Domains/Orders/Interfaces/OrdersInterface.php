@@ -10,8 +10,10 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface OrdersInterface
 {
+    /** @return LengthAwarePaginator<int, Order> */
     public function forCustomer(int $customerId, int $perPage): LengthAwarePaginator;
 
+    /** @return LengthAwarePaginator<int, Order> */
     public function forRestaurant(int $restaurantId, int $perPage): LengthAwarePaginator;
 
     public function findForCustomerOrFail(int $customerId, int $orderId): Order;

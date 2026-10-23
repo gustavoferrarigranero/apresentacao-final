@@ -14,7 +14,7 @@ use RuntimeException;
 final class CategoryRepository implements CategoriaInterface
 {
     /**
-     * @param array{name: string, status: string, restaurant_id: int} $data
+     * @param  array{name: string, status: string, restaurant_id: int}  $data
      */
     public function create(array $data): Category
     {
@@ -28,7 +28,7 @@ final class CategoryRepository implements CategoriaInterface
     }
 
     /**
-     * @param array{name?: string, status?: string} $data
+     * @param  array{name?: string, status?: string}  $data
      */
     public function update(array $data, Category $category): Category
     {
@@ -45,13 +45,14 @@ final class CategoryRepository implements CategoriaInterface
     {
         $category->status = CategoryEnums::INACTIVE->value;
 
-        if (!$category->save()) {
+        if (! $category->save()) {
             throw new RuntimeException('A desativação da categoria foi interrompida.');
         }
 
         return $category->refresh();
     }
 
+    /** @return LengthAwarePaginator<int, Category> */
     public function paginate(int $restaurantId, ?int $id, ?string $name, int $perPage): LengthAwarePaginator
     {
         return Category::query()
@@ -69,5 +70,4 @@ final class CategoryRepository implements CategoriaInterface
             ->where('restaurant_id', $restaurantId)
             ->findOrFail($id);
     }
-
 }

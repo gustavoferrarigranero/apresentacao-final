@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use JsonException;
 use Laravel\Chisel\Chisel;
 use Laravel\Chisel\Question;
 use Laravel\Chisel\Script;
@@ -43,9 +44,29 @@ class InstallFeaturesCommand extends Command
         /** @var Script $script */
         $script = require base_path('chisel.php');
 
-        $providedAnswers = $this->option('answers') === null
-            ? []
-            : json_decode((string) $this->option('answers'), true, 512, JSON_THROW_ON_ERROR);
+        $answersOption = $this->option('answers');
+        if ($answersOption !== null && ! is_string($answersOption)) {
+            $this->error('A opção --answers deve conter um objeto JSON.');
+
+            return self::FAILURE;
+        }
+
+        $providedAnswers = [];
+        if ($answersOption !== null) {
+            try {
+                $providedAnswers = json_decode($answersOption, true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException) {
+                $this->error('A opção --answers deve conter um objeto JSON válido.');
+
+                return self::FAILURE;
+            }
+
+            if (! is_array($providedAnswers) || ! str_starts_with(ltrim($answersOption), '{')) {
+                $this->error('A opção --answers deve conter um objeto JSON.');
+
+                return self::FAILURE;
+            }
+        }
 
         $answers = $script
             ->collectAnswers()

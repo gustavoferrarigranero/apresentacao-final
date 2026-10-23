@@ -22,9 +22,9 @@ final readonly class CategoryService
         private EditCategoryAction $editCategoryAction,
         private DeleteCategoryAction $deleteCategoryAction,
         private ListCategoriesAction $listCategoriesAction,
-    ) {
-    }
+    ) {}
 
+    /** @return LengthAwarePaginator<int, Category> */
     public function index(int $restaurantId, CategoryFiltersData $filters): LengthAwarePaginator
     {
         return $this->listCategoriesAction->execute($restaurantId, $filters);

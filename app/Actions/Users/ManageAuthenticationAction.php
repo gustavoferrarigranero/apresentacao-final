@@ -12,15 +12,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\PersonalAccessToken;
 
 /**
  * Executa o caso de uso `ManageAuthenticationAction` no domínio de utilizadores, mantendo a operação de negócio fora da camada HTTP.
  */
 final class ManageAuthenticationAction
 {
-    public function __construct(private readonly UserRepository $userRepository)
-    {
-    }
+    public function __construct(private readonly UserRepository $userRepository) {}
 
     /**
      * @return array{user: array{id: int, name: string, email: string, role: string, restaurant_id: int|null}, token: string}
@@ -62,7 +61,11 @@ final class ManageAuthenticationAction
 
     public function logout(User $user): void
     {
-        $user->currentAccessToken()?->delete();
+        $token = $user->currentAccessToken();
+
+        if ($token instanceof PersonalAccessToken) {
+            $token->delete();
+        }
     }
 
     public function sendPasswordResetLink(string $email): void

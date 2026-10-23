@@ -13,6 +13,5 @@ final class PasswordResetData extends Data
         public readonly string $email,
         public readonly string $token,
         public readonly string $password,
-    ) {
-    }
+    ) {}
 }

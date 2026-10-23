@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Representa `Order` como entidade persistida da aplicação e define a ligação entre os dados da base de dados e o domínio.
+ *
+ * @property string $payment_value
  */
 class Order extends Model
 {
@@ -28,21 +30,25 @@ class Order extends Model
         ];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return HasMany<Order_iten, $this> */
     public function items(): HasMany
     {
         return $this->hasMany(Order_iten::class, 'order_id');
     }
 
+    /** @return BelongsTo<User, $this> */
     public function customer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'customer_id');
     }
 
+    /** @return BelongsTo<Restaurant, $this> */
     public function restaurant(): BelongsTo
     {
         return $this->belongsTo(Restaurant::class);

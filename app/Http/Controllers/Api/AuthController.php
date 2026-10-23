@@ -16,9 +16,7 @@ use Illuminate\Http\Request;
  */
 class AuthController extends Controller
 {
-    public function __construct(private readonly ManageAuthenticationAction $authenticationAction)
-    {
-    }
+    public function __construct(private readonly ManageAuthenticationAction $authenticationAction) {}
 
     public function register(RegisterCustomerRequest $request): JsonResponse
     {

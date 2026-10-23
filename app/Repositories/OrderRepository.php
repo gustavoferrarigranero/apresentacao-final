@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Domains\Orders\Data\CreateOrderData;
 use App\Domains\Orders\Enums\OrderStatus;
+use App\Domains\Orders\Exceptions\OrderException;
 use App\Domains\Orders\Interfaces\OrdersInterface;
 use App\Models\Order;
 use App\Models\Produt;
@@ -17,6 +18,7 @@ use RuntimeException;
  */
 final class OrderRepository implements OrdersInterface
 {
+    /** @return LengthAwarePaginator<int, Order> */
     public function forCustomer(int $customerId, int $perPage): LengthAwarePaginator
     {
         return Order::query()
@@ -27,6 +29,7 @@ final class OrderRepository implements OrdersInterface
             ->withQueryString();
     }
 
+    /** @return LengthAwarePaginator<int, Order> */
     public function forRestaurant(int $restaurantId, int $perPage): LengthAwarePaginator
     {
         return Order::query()
@@ -84,24 +87,31 @@ final class OrderRepository implements OrdersInterface
                 ->firstOrFail();
 
             if ($product->quantity < $item['quantity']) {
-                throw \App\Domains\Orders\Exceptions\OrderException::insufficientStock($product->name);
+                throw OrderException::insufficientStock($product->name);
             }
 
             $unitPrice = (float) $product->price;
             $product->quantity -= $item['quantity'];
-            $product->saveOrFail();
+            if (! $product->save()) {
+                throw new RuntimeException('A atualização do stock foi interrompida.');
+            }
 
-            $order->items()->create([
+            $orderItem = $order->items()->make([
                 'product_id' => $product->id,
                 'value' => $unitPrice,
                 'quantity' => $item['quantity'],
             ]);
+            if (! $orderItem->save()) {
+                throw new RuntimeException('A gravação do item do pedido foi interrompida.');
+            }
 
             $total += $unitPrice * $item['quantity'];
         }
 
         $order->payment_value = number_format($total, 2, '.', '');
-        $order->saveOrFail();
+        if (! $order->save()) {
+            throw new RuntimeException('A atualização do pedido foi interrompida.');
+        }
 
         return $order->refresh()->load(['restaurant', 'items.product']);
     }
@@ -117,7 +127,9 @@ final class OrderRepository implements OrdersInterface
                     ->find($item->product_id);
                 if ($product !== null) {
                     $product->quantity += $item->quantity;
-                    $product->saveOrFail();
+                    if (! $product->save()) {
+                        throw new RuntimeException('A atualização do stock foi interrompida.');
+                    }
                 }
             }
         }
@@ -151,12 +163,16 @@ final class OrderRepository implements OrdersInterface
             $product = Produt::query()->lockForUpdate()->find($item->product_id);
             if ($product !== null && $product->restaurant_id === $order->restaurant_id) {
                 $product->quantity += $item->quantity;
-                $product->saveOrFail();
+                if (! $product->save()) {
+                    throw new RuntimeException('A atualização do stock foi interrompida.');
+                }
             }
         }
 
         $order->payment_status = OrderStatus::CANCELLED->value;
-        $order->saveOrFail();
+        if (! $order->save()) {
+            throw new RuntimeException('A atualização do pedido foi interrompida.');
+        }
 
         return $order->refresh()->load(['restaurant', 'items.product']);
     }

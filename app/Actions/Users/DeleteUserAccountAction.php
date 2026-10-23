@@ -10,9 +10,7 @@ use App\Repositories\UserRepository;
  */
 final readonly class DeleteUserAccountAction
 {
-    public function __construct(private UserRepository $userRepository)
-    {
-    }
+    public function __construct(private UserRepository $userRepository) {}
 
     public function execute(User $user): void
     {

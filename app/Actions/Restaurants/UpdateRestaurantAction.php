@@ -18,14 +18,12 @@ use Throwable;
  */
 final readonly class UpdateRestaurantAction
 {
-    public function __construct(private RestaurantRepository $restaurantRepository)
-    {
-    }
+    public function __construct(private RestaurantRepository $restaurantRepository) {}
 
     public function execute(User $actor, int $restaurantId, UpdateRestaurantData $data): Restaurant
     {
         if (! in_array($actor->role, [UserRole::SUPER_ADMIN->value, UserRole::RESTAURANT_ADMIN->value], true)) {
-            throw new AuthorizationException();
+            throw new AuthorizationException;
         }
 
         try {

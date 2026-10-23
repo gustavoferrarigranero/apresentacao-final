@@ -19,6 +19,7 @@ final readonly class ListRestaurantsAction
 {
     public function __construct(private RestaurantRepository $restaurantRepository) {}
 
+    /** @return LengthAwarePaginator<int, Restaurant> */
     public function execute(?User $user, RestaurantFiltersData $filters): LengthAwarePaginator
     {
         try {

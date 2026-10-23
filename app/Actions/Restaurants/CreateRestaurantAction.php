@@ -14,9 +14,7 @@ use Throwable;
  */
 final readonly class CreateRestaurantAction
 {
-    public function __construct(private RestaurantRepository $restaurantRepository)
-    {
-    }
+    public function __construct(private RestaurantRepository $restaurantRepository) {}
 
     public function execute(CreateRestaurantData $data): Restaurant
     {

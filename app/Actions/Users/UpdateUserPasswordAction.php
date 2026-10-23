@@ -10,9 +10,7 @@ use App\Repositories\UserRepository;
  */
 final readonly class UpdateUserPasswordAction
 {
-    public function __construct(private UserRepository $userRepository)
-    {
-    }
+    public function __construct(private UserRepository $userRepository) {}
 
     public function execute(User $user, string $password): void
     {

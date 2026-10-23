@@ -23,9 +23,9 @@ final readonly class RestaurantService
         private ListRestaurantsAction $listRestaurantsAction,
         private UpdateRestaurantAction $updateRestaurantAction,
         private DeactivateRestaurantAction $deactivateRestaurantAction,
-    ) {
-    }
+    ) {}
 
+    /** @return LengthAwarePaginator<int, Restaurant> */
     public function index(?User $user, RestaurantFiltersData $filters): LengthAwarePaginator
     {
         return $this->listRestaurantsAction->execute($user, $filters);

@@ -4,6 +4,7 @@ namespace App\Http\Requests\Api\Users;
 
 use App\Domains\Users\Data\CreateStaffData;
 use App\Domains\Users\Enums\UserRole;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -17,6 +18,7 @@ class StoreRestaurantUserRequest extends FormRequest
         return $this->user()?->role === UserRole::RESTAURANT_ADMIN->value;
     }
 
+    /** @return array<string, ValidationRule|array<mixed>|string> */
     public function rules(): array
     {
         return [

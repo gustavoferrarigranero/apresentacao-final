@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\Products;
 
 use App\Domains\Categories\Enums\CategoryEnums;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -16,6 +17,7 @@ class StoreProductRequest extends FormRequest
         return in_array($this->user()?->role, ['restaurant_admin', 'staff'], true);
     }
 
+    /** @return array<string, ValidationRule|array<mixed>|string> */
     public function rules(): array
     {
         return [

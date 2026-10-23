@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\Orders;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -15,6 +16,7 @@ class StoreOrderRequest extends FormRequest
         return $this->user()?->role === 'customer';
     }
 
+    /** @return array<string, ValidationRule|array<mixed>|string> */
     public function rules(): array
     {
         return [

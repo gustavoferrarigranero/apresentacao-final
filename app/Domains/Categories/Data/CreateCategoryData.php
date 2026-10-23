@@ -9,10 +9,8 @@ use Spatie\LaravelData\Data;
  */
 final class CreateCategoryData extends Data
 {
-
     public function __construct(
         public readonly string $name,
         public readonly string $status = 'active',
-    ) {
-    }
+    ) {}
 }

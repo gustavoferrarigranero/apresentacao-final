@@ -42,7 +42,7 @@ final class UserRepository implements UserInterface
     }
 
     /**
-     * @param array{name?: string, email?: string} $attributes
+     * @param  array{name?: string, email?: string}  $attributes
      */
     public function updateProfile(User $user, array $attributes): User
     {

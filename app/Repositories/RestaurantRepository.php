@@ -14,8 +14,9 @@ use RuntimeException;
 /**
  * Centraliza a leitura e a persistência dos dados do domínio de restaurantes, evitando consultas à base de dados espalhadas pelos casos de uso.
  */
-final class RestaurantRepository Implements RestaurantInterface
+final class RestaurantRepository implements RestaurantInterface
 {
+    /** @return LengthAwarePaginator<int, Restaurant> */
     public function paginateForUser(User $user, ?int $id, ?string $name, int $perPage): LengthAwarePaginator
     {
         return Restaurant::query()
@@ -27,6 +28,7 @@ final class RestaurantRepository Implements RestaurantInterface
             ->withQueryString();
     }
 
+    /** @return LengthAwarePaginator<int, Restaurant> */
     public function paginateAll(?int $id, ?string $name, int $perPage): LengthAwarePaginator
     {
         return Restaurant::query()
@@ -37,6 +39,7 @@ final class RestaurantRepository Implements RestaurantInterface
             ->withQueryString();
     }
 
+    /** @return LengthAwarePaginator<int, Restaurant> */
     public function paginatePublic(?int $id, ?string $name, int $perPage): LengthAwarePaginator
     {
         return Restaurant::query()
@@ -101,7 +104,7 @@ final class RestaurantRepository Implements RestaurantInterface
     }
 
     /**
-     * @param array{name?: string, address?: string, phone_number?: string, nif?: string, status?: string} $attributes
+     * @param  array{name?: string, address?: string, phone_number?: string, nif?: string, status?: string}  $attributes
      */
     public function update(Restaurant $restaurant, array $attributes): Restaurant
     {

@@ -70,7 +70,10 @@
             "@test"
         ],
         "types:check": [
-            "phpstan analyse"
+            "phpstan analyse --memory-limit=512M"
+        ],
+        "test:coverage": [
+            "@php artisan test --coverage --min=95"
         ],
         "test": [
             "@php artisan config:clear --ansi",

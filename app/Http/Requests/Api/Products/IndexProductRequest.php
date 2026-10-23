@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\Products;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -14,6 +15,7 @@ class IndexProductRequest extends FormRequest
         return true;
     }
 
+    /** @return array<string, ValidationRule|array<mixed>|string> */
     public function rules(): array
     {
         return [

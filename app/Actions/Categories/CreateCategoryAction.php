@@ -14,9 +14,7 @@ use Throwable;
  */
 final readonly class CreateCategoryAction
 {
-    public function __construct(private CategoryRepository $categoryRepository)
-    {
-    }
+    public function __construct(private CategoryRepository $categoryRepository) {}
 
     public function execute(int $restaurantId, CreateCategoryData $createCategoryData): Category
     {

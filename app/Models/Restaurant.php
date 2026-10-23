@@ -18,24 +18,27 @@ class Restaurant extends Model
         'status',
     ];
 
+    /** @return HasMany<User, $this> */
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
     }
 
+    /** @return HasMany<Category, $this> */
     public function categories(): HasMany
     {
         return $this->hasMany(Category::class);
     }
 
+    /** @return HasMany<Produt, $this> */
     public function products(): HasMany
     {
         return $this->hasMany(Produt::class);
     }
 
+    /** @return HasMany<Order, $this> */
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
     }
-
 }

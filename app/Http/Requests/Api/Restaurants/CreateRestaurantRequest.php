@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\Restaurants;
 
+use App\Domains\Users\Enums\UserRole;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -12,7 +13,7 @@ class CreateRestaurantRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->role === \App\Domains\Users\Enums\UserRole::SUPER_ADMIN->value;
+        return $this->user()?->role === UserRole::SUPER_ADMIN->value;
     }
 
     /**

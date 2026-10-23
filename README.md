@@ -231,9 +231,26 @@ As portas publicadas de MySQL, Redis e phpMyAdmin estão limitadas ao loopback d
 
 **Laravel Vapor:** execute `vapor init` para substituir o ID de exemplo em `vapor.yml` e crie os recursos AWS com os nomes `delivery-hub-db`, `delivery-hub-cache`, `delivery-hub-storage`, `staging-queue` e `production-queue`. Configure `BROADCAST_CONNECTION=reverb` e as credenciais/URL do Reverb em Vapor; forneça `VITE_REVERB_*` também ao runner de build, pois os assets são compilados antes do deploy. As migrações correm antes da ativação. Vapor fornece filas e agendamento serverless; Reverb precisa de um host persistente acessível externamente (por exemplo, Forge ou ECS), porque uma Lambda HTTP não deve iniciar o servidor WebSocket como processo permanente. O `Dockerfile` e `compose.yaml` destinam-se à execução persistente e CI local/Forge; Vapor usa o runtime nativo descrito em `vapor.yml`.
 
+## Verificação de qualidade
+
+Execute as verificações antes de abrir um pull request:
+
+```bash
+composer test
+composer test:coverage
+npm run check
+npm run types:check
+npm run test:frontend
+npm run build
+```
+
+`composer test` valida a formatação PHP com Pint, analisa toda a aplicação com PHPStan no nível 7 e executa os testes Laravel. `composer test:coverage` exige Xdebug com `xdebug.mode=coverage` (ou PCOV) e falha se a cobertura global ficar abaixo de 95%. Os testes Laravel usam SQLite em memória, sem alterar a base de dados da aplicação.
+
+O seeder do administrador lê `SUPER_ADMIN_EMAIL` e `SUPER_ADMIN_PASSWORD` através da configuração Laravel, para funcionar também com configuração em cache. A palavra-passe tem de ter pelo menos 16 caracteres. Depois de alterar estas variáveis num ambiente com cache, volte a executar `php artisan config:cache` antes do seeder.
+
 ## CI/CD no GitHub Actions
 
-O workflow `.github/workflows/deploy.yml` valida pull requests, pushes para `main` e tags `v*`: executa testes Laravel e verificações PHP, valida tipos/formatação e compila o front-end, valida o Compose e constrói/testa as imagens Docker. Os jobs de PHP, front-end e containers correm em paralelo.
+O workflow `.github/workflows/deploy.yml` valida pull requests, pushes para `main` e tags `v*`: executa a validação PHP completa e exige pelo menos 95% de cobertura, valida tipos/formatação e compila o front-end, valida o Compose e constrói/testa as imagens Docker. Os jobs de PHP, front-end e containers correm em paralelo.
 
 O deploy é iniciado manualmente em **Actions → Delivery Hub Deploy → Run workflow**, escolhendo `forge` ou `vapor`; só é permitido a partir de `main` e só começa depois de todos os checks passarem. Configure ambientes protegidos do GitHub Actions chamados `production-forge` e `production-vapor`:
 

@@ -14,10 +14,9 @@ use Throwable;
  */
 final readonly class ListProductsAction
 {
-    public function __construct(private ProductRepository $productRepository)
-    {
-    }
+    public function __construct(private ProductRepository $productRepository) {}
 
+    /** @return LengthAwarePaginator<int, Produt> */
     public function execute(int $restaurantId, ?string $name, int $perPage, bool $activeOnly): LengthAwarePaginator
     {
         try {

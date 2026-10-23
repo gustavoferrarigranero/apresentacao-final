@@ -15,9 +15,7 @@ use Throwable;
  */
 final readonly class UpdateProductAction
 {
-    public function __construct(private ProductRepository $productRepository)
-    {
-    }
+    public function __construct(private ProductRepository $productRepository) {}
 
     public function execute(int $restaurantId, int $productId, ProductData $data): Produt
     {

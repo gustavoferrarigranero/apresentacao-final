@@ -28,16 +28,19 @@ class Produt extends Model
         ];
     }
 
+    /** @return BelongsTo<Category, $this> */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
+    /** @return BelongsTo<Restaurant, $this> */
     public function restaurant(): BelongsTo
     {
         return $this->belongsTo(Restaurant::class);
     }
 
+    /** @return HasMany<Order_iten, $this> */
     public function orderItems(): HasMany
     {
         return $this->hasMany(Order_iten::class, 'product_id');

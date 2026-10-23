@@ -23,11 +23,13 @@ class Order_iten extends Model
         ];
     }
 
+    /** @return BelongsTo<Produt, $this> */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Produt::class);
     }
 
+    /** @return BelongsTo<Order, $this> */
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
