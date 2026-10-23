@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Guarda segredo, códigos de recuperação e confirmação da autenticação de dois fatores.
         Schema::table('users', function (Blueprint $table) {
             $table->text('two_factor_secret')->after('password')->nullable();
             $table->text('two_factor_recovery_codes')->after('two_factor_secret')->nullable();
@@ -23,6 +24,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Remove os dados de dois fatores ao reverter esta migration.
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn([
                 'two_factor_secret',

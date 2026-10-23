@@ -11,15 +11,18 @@ return new class extends PulseMigration
      */
     public function up(): void
     {
+        // Respeita a configuração do Pulse e evita criar tabelas se a captura estiver desativada.
         if (! $this->shouldRun()) {
             return;
         }
 
+        // Guarda valores recentes de métricas e permite expurgar dados antigos por timestamp.
         Schema::create('pulse_values', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('timestamp');
             $table->string('type');
             $table->mediumText('key');
+            // Hash indexável para chaves longas; a implementação varia com o motor da base de dados.
             match ($this->driver()) {
                 'mariadb', 'mysql' => $table->char('key_hash', 16)->charset('binary')->virtualAs('unhex(md5(`key`))'),
                 'pgsql' => $table->uuid('key_hash')->storedAs('md5("key")::uuid'),
@@ -32,11 +35,13 @@ return new class extends PulseMigration
             $table->unique(['type', 'key_hash']); // For data integrity and upserts...
         });
 
+        // Armazena eventos recolhidos pelo Pulse para análise operacional detalhada.
         Schema::create('pulse_entries', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('timestamp');
             $table->string('type');
             $table->mediumText('key');
+            // Mantém a mesma estratégia de hash para procurar chaves longas eficientemente.
             match ($this->driver()) {
                 'mariadb', 'mysql' => $table->char('key_hash', 16)->charset('binary')->virtualAs('unhex(md5(`key`))'),
                 'pgsql' => $table->uuid('key_hash')->storedAs('md5("key")::uuid'),
@@ -50,12 +55,14 @@ return new class extends PulseMigration
             $table->index(['timestamp', 'type', 'key_hash', 'value']); // For aggregate queries...
         });
 
+        // Guarda métricas agregadas por período para evitar recalcular eventos em cada consulta.
         Schema::create('pulse_aggregates', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('bucket');
             $table->unsignedMediumInteger('period');
             $table->string('type');
             $table->mediumText('key');
+            // Hash da chave para garantir unicidade e permitir pesquisas indexadas.
             match ($this->driver()) {
                 'mariadb', 'mysql' => $table->char('key_hash', 16)->charset('binary')->virtualAs('unhex(md5(`key`))'),
                 'pgsql' => $table->uuid('key_hash')->storedAs('md5("key")::uuid'),

@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Liga cada linha de produto à encomenda que a contém.
         Schema::table('order_itens', function (Blueprint $table) {
             $table->foreignId('order_id')->constrained('orders');
         });

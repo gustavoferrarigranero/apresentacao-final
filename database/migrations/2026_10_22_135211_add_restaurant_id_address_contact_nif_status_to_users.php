@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Acrescenta à conta os dados de contacto e a associação opcional a um restaurante.
         Schema::table('users', function (Blueprint $table) {
+            // Clientes podem não estar associados a um restaurante; contas de equipa podem estar.
             $table->foreignId('restaurant_id')->nullable()->constrained('restaurants');
             $table->string('address')->nullable();
             $table->string('contact')->nullable();

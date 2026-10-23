@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Armazena tokens Sanctum para autenticar clientes da API sem sessão web.
         Schema::create('personal_access_tokens', function (Blueprint $table) {
             $table->id();
+            // Associação polimórfica permite emitir tokens para diferentes tipos de modelo.
             $table->morphs('tokenable');
             $table->text('name');
+            // Guarda o hash do token; o valor legível só é apresentado ao criar o token.
             $table->string('token', 64)->unique();
             $table->text('abilities')->nullable();
             $table->timestamp('last_used_at')->nullable();

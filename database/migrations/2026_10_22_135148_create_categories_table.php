@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Cria categorias para organizar os produtos do marketplace.
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');

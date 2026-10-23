@@ -175,8 +175,8 @@ php artisan reverb:start --host=0.0.0.0 --port=8080
 ```
 
 ```bash
-# Processa tarefas normais e relatórios sem bloquear pedidos HTTP.
-php artisan queue:work --queue=default,reports --tries=3
+# Processa os jobs de relatórios com até três tentativas e timeout de 120 segundos.
+php artisan queue:work --queue=reports --tries=3 --timeout=120
 ```
 
 As alterações de estado são emitidas como `order.status.updated` para os canais privados `restaurant.{id}` e `orders.{customerId}`. A autorização do canal usa a sessão web autenticada ou um token Sanctum autorizado.
