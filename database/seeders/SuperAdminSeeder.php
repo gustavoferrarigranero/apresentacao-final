@@ -18,7 +18,7 @@ class SuperAdminSeeder extends Seeder
         $email = env('SUPER_ADMIN_EMAIL');
         $password = env('SUPER_ADMIN_PASSWORD');
 
-        if (! is_string($email) || $email === '' || ! is_string($password) || strlen($password) < 16) {
+        if (! is_string($email) || $email === '' || ! is_string($password) || strlen($password) < 9) {
             throw new RuntimeException(
                 'Configure SUPER_ADMIN_EMAIL e SUPER_ADMIN_PASSWORD (mínimo 16 caracteres) antes de executar db:seed.'
             );
