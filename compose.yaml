@@ -70,11 +70,10 @@ services:
                 'php',
                 'artisan',
                 'queue:work',
-                'redis',
-                '--queue=default,reports',
+                '--queue=reports',
                 '--sleep=1',
                 '--tries=3',
-                '--timeout=90',
+                '--timeout=120',
             ]
         depends_on:
             app:

@@ -8,6 +8,7 @@ use App\Jobs\BuildDailyOrderSummary;
 use App\Models\Order;
 use App\Models\Restaurant;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Gate;
@@ -144,7 +145,9 @@ class OperationsAndObservabilityTest extends TestCase
 
     public function test_daily_order_summary_job_logs_counts_for_the_requested_date(): void
     {
-        // Cria um pedido persistido com data controlada para verificar o processamento real do job.
+        // Congela o relógio para que os timestamps automáticos do pedido correspondam ao dia do relatório.
+        $this->travelTo(Carbon::parse('2026-10-22 12:00:00'));
+
         $restaurant = Restaurant::query()->create([
             'name' => 'Restaurante de Relatórios',
             'address' => 'Rua dos Dados, 4',
@@ -163,8 +166,6 @@ class OperationsAndObservabilityTest extends TestCase
             'delivery_date' => '2026-10-22',
             'payment_status' => 'pending',
             'payment_value' => '8.50',
-            'created_at' => '2026-10-22 12:00:00',
-            'updated_at' => '2026-10-22 12:00:00',
         ]);
 
         // Verifica o resumo operacional sem depender de um agregador ou saída de log externo.
