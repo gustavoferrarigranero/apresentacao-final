@@ -1,5 +1,5 @@
+import { Input } from '@/components/ui/input';
 import { Form } from '@inertiajs/react';
-import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { Check, Copy, ScanLine } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AlertError from '@/components/alert-error';
@@ -12,15 +12,9 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import {
-    InputOTP,
-    InputOTPGroup,
-    InputOTPSlot,
-} from '@/components/ui/input-otp';
 import { Spinner } from '@/components/ui/spinner';
 import { useAppearance } from '@/hooks/use-appearance';
 import { useClipboard } from '@/hooks/use-clipboard';
-import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
 import { confirm } from '@/routes/two-factor';
 
 function GridScanIcon() {
@@ -156,6 +150,7 @@ function TwoFactorVerificationStep({
 
     return (
         <Form
+            noValidate
             {...confirm.form()}
             onSuccess={() => onClose()}
             resetOnError
@@ -174,27 +169,20 @@ function TwoFactorVerificationStep({
                         className="relative w-full space-y-3"
                     >
                         <div className="flex w-full flex-col items-center space-y-3 py-2">
-                            <InputOTP
-                                id="otp"
+                            <Input
+                                id="authentication-code"
                                 name="code"
-                                maxLength={OTP_MAX_LENGTH}
-                                onChange={setCode}
+                                type="text"
+                                inputMode="numeric"
+                                autoComplete="one-time-code"
+                                aria-label="Código de autenticação"
+                                value={code}
+                                onChange={(event) =>
+                                    setCode(event.target.value)
+                                }
                                 disabled={processing}
-                                pattern={REGEXP_ONLY_DIGITS}
                                 autoFocus
-                            >
-                                <InputOTPGroup>
-                                    {Array.from(
-                                        { length: OTP_MAX_LENGTH },
-                                        (_, index) => (
-                                            <InputOTPSlot
-                                                key={index}
-                                                index={index}
-                                            />
-                                        ),
-                                    )}
-                                </InputOTPGroup>
-                            </InputOTP>
+                            />
                             <InputError
                                 message={
                                     errors?.confirmTwoFactorAuthentication?.code
@@ -215,9 +203,7 @@ function TwoFactorVerificationStep({
                             <Button
                                 type="submit"
                                 className="flex-1"
-                                disabled={
-                                    processing || code.length < OTP_MAX_LENGTH
-                                }
+                                disabled={processing}
                             >
                                 Confirm
                             </Button>

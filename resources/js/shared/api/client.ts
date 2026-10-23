@@ -1,3 +1,4 @@
+import { friendlyMessage, httpMessage } from '../errors/messages';
 const tokenKey = 'deliveryhub.api.token';
 let memoryToken: string | null | undefined;
 export function getToken(): string | null {
@@ -85,18 +86,20 @@ export async function api<T>(
         if (body?.errors && typeof body.errors === 'object')
             for (const [key, value] of Object.entries(body.errors)) {
                 const first = Array.isArray(value) ? value[0] : value;
-                if (typeof first === 'string') fields[key] = first;
+                if (typeof first === 'string')
+                    fields[key] = friendlyMessage(first, key);
             }
         if (response.status === 401 && token) {
             setToken(null);
             window.dispatchEvent(new Event('deliveryhub:unauthorized'));
         }
         throw new ApiError(
-            typeof body?.message === 'string'
-                ? body.message
-                : response.status === 419
-                  ? 'A sessão expirou. Atualize a página e tente novamente.'
-                  : `O pedido falhou (${response.status}).`,
+            httpMessage(
+                response.status,
+                typeof body?.message === 'string' ? body.message : undefined,
+                fields,
+                url === '/api/v1/auth/login',
+            ),
             response.status,
             fields,
             response.headers.get('X-Request-Id'),
@@ -112,5 +115,5 @@ export async function api<T>(
 }
 export const errorText = (error: unknown) =>
     error instanceof Error && !(error instanceof TypeError)
-        ? error.message
+        ? friendlyMessage(error.message)
         : 'Não foi possível contactar o servidor. Verifique a ligação e tente novamente.';

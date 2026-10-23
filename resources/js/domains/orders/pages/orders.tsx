@@ -146,12 +146,16 @@ export default function Orders({
                                                 )}
                                             </td>
                                             <td className="px-5 py-5">
-                                                <a
-                                                    href={`#order/${order.id}`}
-                                                    className="font-semibold text-orange-700"
+                                                <button
+                                                    type="button"
+                                                    className={secondaryClass}
+                                                    aria-label={`Ver detalhes do pedido #${order.id}`}
+                                                    onClick={() => {
+                                                        window.location.hash = `order/${order.id}`;
+                                                    }}
                                                 >
-                                                    Ver detalhe
-                                                </a>
+                                                    Ver detalhes
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}

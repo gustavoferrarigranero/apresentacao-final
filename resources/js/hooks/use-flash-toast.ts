@@ -1,3 +1,4 @@
+import { friendlyMessage } from '@/shared/errors/messages';
 import { router } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
@@ -13,7 +14,11 @@ export function useFlashToast(): void {
                 return;
             }
 
-            toast[data.type](data.message);
+            toast[data.type](
+                data.type === 'error'
+                    ? friendlyMessage(data.message)
+                    : data.message,
+            );
         });
     }, []);
 }

@@ -40,40 +40,33 @@ export function RestaurantsManagement() {
             name: 'name',
             label: 'Nome',
             required: true,
-            minLength: 2,
-            maxLength: 255,
         },
-        { name: 'address', label: 'Morada', required: true, maxLength: 255 },
+        { name: 'address', label: 'Morada', required: true },
         {
             name: 'phone_number',
             label: 'Contacto',
             type: 'tel',
             required: true,
-            maxLength: 30,
         },
-        { name: 'nif', label: 'NIF', required: true, maxLength: 20 },
+        { name: 'nif', label: 'NIF', required: true },
         ...(edit === 'new'
             ? [
                   {
                       name: 'admin_name',
                       label: 'Nome do administrador',
                       required: true,
-                      minLength: 2,
-                      maxLength: 255,
                   },
                   {
                       name: 'admin_email',
                       label: 'Email do administrador',
                       type: 'email' as const,
                       required: true,
-                      maxLength: 255,
                   },
                   {
                       name: 'admin_password',
                       label: 'Palavra-passe do administrador',
                       type: 'password' as const,
                       required: true,
-                      minLength: 12,
                       hint: 'Pelo menos 12 caracteres.',
                   },
               ]

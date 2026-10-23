@@ -22,8 +22,6 @@ export default function Authentication({
                       name: 'name',
                       label: 'Nome completo',
                       required: true,
-                      minLength: 2,
-                      maxLength: 255,
                   },
               ]
             : []),
@@ -32,7 +30,6 @@ export default function Authentication({
             label: 'Email',
             type: 'email',
             required: true,
-            maxLength: 255,
         },
         ...(mode === 'forgot'
             ? []
@@ -43,7 +40,7 @@ export default function Authentication({
                       type: 'password' as const,
                       required: true,
                       ...(register
-                          ? { minLength: 12, hint: 'Pelo menos 12 caracteres.' }
+                          ? { hint: 'Pelo menos 12 caracteres.' }
                           : {}),
                   },
               ]),
@@ -54,7 +51,6 @@ export default function Authentication({
                       label: 'Confirmar palavra-passe',
                       type: 'password' as const,
                       required: true,
-                      minLength: 12,
                   },
               ]
             : []),

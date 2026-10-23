@@ -17,8 +17,6 @@ export type UseTwoFactorAuthReturn = {
     fetchRecoveryCodes: () => Promise<void>;
 };
 
-export const OTP_MAX_LENGTH = 6;
-
 export const useTwoFactorAuth = (): UseTwoFactorAuthReturn => {
     const { submit } = useHttp();
 

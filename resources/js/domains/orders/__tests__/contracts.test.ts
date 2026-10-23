@@ -7,7 +7,7 @@ import {
     orderChannel,
     transitions,
 } from '@/domains/orders/rules';
-import { decimalToCents } from '@/shared/utils/money';
+import { decimalToCents, money } from '@/shared/utils/money';
 import type { ApiUser } from '@/domains/users/types';
 import type { OrderStatus } from '@/domains/orders/types';
 import type { Product } from '@/domains/products/types';
@@ -55,10 +55,10 @@ describe('Contrato real de pedidos', () => {
             checkoutPayload([{ product, quantity: 1 }], 'Morada', ''),
         ).not.toHaveProperty('delivery_date');
     });
-    it('não permite morada vazia, produtos duplicados ou restaurantes diferentes', () => {
-        expect(() =>
-            checkoutPayload([{ product, quantity: 1 }], ' ', ''),
-        ).toThrow();
+    it('delega a morada ao backend e impede produtos duplicados ou restaurantes diferentes', () => {
+        expect(
+            checkoutPayload([{ product, quantity: 1 }], ' ', '').address,
+        ).toBe('');
         expect(() =>
             checkoutPayload(
                 [
@@ -124,11 +124,16 @@ describe('Contrato real de pedidos', () => {
     });
 });
 describe('Preços decimais reais, papéis e estados', () => {
-    it('converte strings decimais sem tratar euros como centavos', () => {
+    it('converte strings decimais sem tratar kwanzas como centavos', () => {
         expect(decimalToCents('19.99')).toBe(1999);
         expect(decimalToCents('3.50')).toBe(350);
         expect(decimalToCents(2)).toBe(200);
         expect(decimalToCents('0.01')).toBe(1);
+    });
+    it('apresenta os valores em AOA sem alterar a escala ou aplicar câmbio', () => {
+        expect(money(1850).replace(/\s/g, ' ')).toBe('18,50 AOA');
+        expect(money(0).replace(/\s/g, ' ')).toBe('0,00 AOA');
+        expect(money(1999).replace(/\s/g, ' ')).toBe('19,99 AOA');
     });
     it('rejeita números inválidos ou precisão monetária inesperada', () => {
         expect(() => decimalToCents('NaN')).toThrow();

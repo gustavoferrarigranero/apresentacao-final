@@ -1,25 +1,71 @@
-# Frontend DeliveryHub — guia de desenvolvimento, integração e testes
+# Frontend DeliveryHub — percurso didático passo a passo
 
-Este documento descreve a implementação existente, como executar as telas, onde alterar cada funcionalidade e como validar uma entrega. Os comandos devem ser executados na raiz do projeto. Os endpoints e permissões apresentados correspondem ao código entregue pelo backend; funcionalidades futuras estão identificadas como pendentes.
+Este guia ensina o fluxo real do frontend, do primeiro pedido HTTP até à entrega de uma alteração. Deve ser lido na ordem das etapas na primeira utilização; depois pode ser usado como referência por assunto. Os exemplos correspondem aos ficheiros atuais do projeto.
 
-## Índice
+## Como estudar este guia
 
-1. [Âmbito e tecnologias](#âmbito)
-2. [Preparar e abrir a aplicação](#abrir-e-testar)
-3. [Estrutura e responsabilidades](#estrutura-de-pastas-alinhada-com-o-backend)
-4. [Contratos e regras](#contratos-utilizados)
-5. [Limitações conhecidas](#limites-do-backend-identificados)
-6. [Verificações já executadas](#verificação-executada)
-7. [Limpeza e carregamento](#limpeza-do-frontend)
-8. [Fluxo de execução e estado](#fluxo-de-execução-e-gestão-de-estado)
-9. [Design, acessibilidade e desempenho](#interface-estilos-e-acessibilidade)
-10. [Testes automatizados](#guia-de-testes-automatizados)
-11. [Testes manuais por tela e papel](#guia-de-testes-manuais)
-12. [Falhas, recuperação e tempo real](#testar-falhas-recuperação-e-tempo-real)
-13. [Diagnóstico de problemas](#diagnóstico-de-problemas)
-14. [Adicionar funcionalidades e entregar alterações](#desenvolvimento-e-entrega)
+1. Abrir os ficheiros indicados em cada etapa no editor.
+2. Ler a explicação e acompanhar o caminho de dados, não apenas o aspeto da tela.
+3. Executar o exercício num ambiente de desenvolvimento/testes, com contas apropriadas.
+4. Comparar o resultado com o comportamento esperado e registar o que não foi testado.
 
-## Âmbito
+**Pré-requisitos:** noções básicas de componentes React, props, estado, efeitos e HTTP. Cada etapa indica como esses conceitos aparecem neste projeto. Para começar a executar sem estudar tudo primeiro, seguir a etapa 2.
+
+**Comandos de verificação:** `npm run types:check`, `npm run check`, `npm run test:frontend`, `npm run build`. A suíte documentada tem 50 testes em 7 ficheiros; consultar os limites dessa evidência na etapa de testes.
+
+## Conceitos essenciais
+
+| Conceito          | Significado neste projeto                                  |
+| ----------------- | ---------------------------------------------------------- |
+| Componente        | Função React que apresenta uma parte da interface          |
+| Props             | Dados e callbacks recebidos por um componente              |
+| Estado            | Informação que provoca novo render quando muda             |
+| Hook              | Função React para reutilizar estado, efeitos ou contexto   |
+| Provider/contexto | Forma de partilhar sessão com os componentes descendentes  |
+| Reducer           | Função que recebe estado e ação e devolve o próximo estado |
+| Efeito            | Ligação a algo externo, como HTTP, timer ou armazenamento  |
+| Serviço           | Módulo que concentra contratos e operações de um domínio   |
+| Endpoint          | Caminho e método HTTP de uma operação da API               |
+| Resource          | Forma JSON que o backend escolhe expor ao consumidor       |
+| Mutação           | Operação que cria ou altera dados, como POST ou PATCH      |
+| Mock              | Substituto controlado de uma dependência durante um teste  |
+| Chunk             | Parte dos assets carregada separadamente quando necessária |
+
+## Índice do percurso
+
+1. [Conhecer a aplicação e as tecnologias](#1-conhecer-a-aplicação-e-as-tecnologias)
+2. [Preparar o ambiente e abrir as telas](#2-preparar-o-ambiente-e-abrir-as-telas)
+3. [Aprender a estrutura de pastas](#3-aprender-a-estrutura-de-pastas)
+4. [Acompanhar o arranque da primeira tela](#4-acompanhar-o-arranque-da-primeira-tela)
+5. [Seguir a navegação e a gestão de estado](#5-seguir-a-navegação-e-a-gestão-de-estado)
+6. [Percorrer login, sessão e permissões](#6-percorrer-login-sessão-e-permissões)
+7. [Seguir uma consulta da tela até à API](#7-seguir-uma-consulta-da-tela-até-à-api)
+8. [Pesquisar enquanto escreve e paginar](#8-pesquisar-enquanto-escreve-e-paginar)
+9. [Estudar um CRUD completo com categorias](#9-estudar-um-crud-completo-com-categorias)
+10. [Adicionar pratos e restaurar o carrinho](#10-adicionar-pratos-e-restaurar-o-carrinho)
+11. [Concluir o pedido e recuperar de falhas](#11-concluir-o-pedido-e-recuperar-de-falhas)
+12. [Acompanhar pedidos, detalhes e dashboard](#12-acompanhar-pedidos-detalhes-e-dashboard)
+13. [Entender eventos e reconexão](#13-entender-eventos-e-reconexão)
+14. [Tratar validação e mensagens de erro](#14-tratar-validação-e-mensagens-de-erro)
+15. [Compor a interface e disponibilizar Android](#15-compor-a-interface-e-disponibilizar-android)
+16. [Executar e escrever testes automatizados](#16-executar-e-escrever-testes-automatizados)
+17. [Validar o fluxo completo no navegador](#17-validar-o-fluxo-completo-no-navegador)
+18. [Diagnosticar problemas pela camada certa](#18-diagnosticar-problemas-pela-camada-certa)
+19. [Implementar uma alteração e preparar a entrega](#19-implementar-uma-alteração-e-preparar-a-entrega)
+
+- [Limitações e funcionalidades pendentes](#limitações-e-funcionalidades-pendentes)
+- [Evidência de verificação](#evidência-de-verificação)
+- [Histórico da simplificação](#histórico-da-simplificação)
+
+## 1. Conhecer a aplicação e as tecnologias
+
+**Objetivo:** entender o que o frontend faz e o que continua a ser responsabilidade do servidor.
+
+**Abra estes ficheiros:** [`package.json`](package.json), [`resources/js/app.tsx`](resources/js/app.tsx) e [`vite.config.ts`](vite.config.ts).
+
+O frontend apresenta os dados e recolhe ações do utilizador. O backend verifica permissões, valida os dados, calcula preços e grava as alterações. Uma interface que esconde uma ação não substitui a autorização da API.
+
+Neste projeto coexistem **dois fluxos**: páginas web Inertia/Fortify e uma aplicação de portal/gestão que navega por fragmentos da URL e consome JSON. Distingui-los evita tentar utilizar um token API como se fosse uma sessão web, ou tratar uma resposta JSON como uma página Inertia.
 
 ### Tecnologias e ficheiros de configuração
 
@@ -54,7 +100,19 @@ A aplicação Inertia continua a arrancar em `resources/js/app.tsx`. As páginas
 
 Não existem dados comerciais de exemplo no novo portal: listas, detalhes, pedidos e indicadores vêm da API. Carrinho e avisos são estado local do React.
 
-## Abrir e testar
+### Exercício de verificação
+
+Localize no `package.json` os scripts `dev`, `types:check`, `check`, `test:frontend` e `build`. Explique para que serve cada um antes de os executar. Não confunda compilação aprovada com um fluxo de compra validado.
+
+## 2. Preparar o ambiente e abrir as telas
+
+**Objetivo:** conseguir executar o projeto com dependências, schema e serviços apropriados.
+
+**Abra estes ficheiros:** [`package.json`](package.json), [`.env.example`](.env.example), [`database/seeders/SuperAdminSeeder.php`](database/seeders/SuperAdminSeeder.php) e [`routes/web.php`](routes/web.php).
+
+Siga esta ordem numa instalação nova: configurar o ambiente, instalar dependências, preparar chave e migrations, preparar contas de teste, iniciar Laravel e Vite e só depois abrir a aplicação. Os comandos de preparação detalhados abaixo não devem substituir um `.env` já configurado.
+
+Para testar apenas as regras JavaScript, não precisa de base de dados. Para testar as telas contra a API real, precisa das migrations e das contas corretas. Reverb e filas são necessários para comprovar a entrega de eventos, não para executar os testes unitários.
 
 Com o servidor Laravel e Vite habituais do projeto em execução, abrir a raiz da aplicação:
 
@@ -168,7 +226,22 @@ Em produção, esses processos pertencem à infraestrutura gerida pela equipa ba
 
 Para testar fluxos autenticados, utilizar contas de desenvolvimento disponibilizadas pela equipa. O registo no portal e as ações de gestão criam e alteram dados reais na base ligada.
 
-## Estrutura de pastas alinhada com o backend
+### Exercício de verificação
+
+1. Abrir `/#portal` e confirmar se a API devolve restaurantes ou uma lista vazia.
+2. Abrir `/#login` para o fluxo API e `/login` para o fluxo web; observar que são telas/contratos diferentes.
+3. Consultar `php artisan migrate:status` se aparecer um erro de coluna/tabela inexistente.
+4. Confirmar que nenhum segredo foi copiado para código, documentação ou capturas.
+
+## 3. Aprender a estrutura de pastas
+
+**Objetivo:** saber onde encontrar e onde colocar cada responsabilidade.
+
+**Abra estes ficheiros:** [`resources/js`](resources/js), [`resources/js/domains`](resources/js/domains), [`resources/js/shared`](resources/js/shared) e [`resources/js/features`](resources/js/features).
+
+Comece pela entrada e percorra as camadas. `pages` liga o Inertia à aplicação; `application` compõe a navegação e os providers; `domains` contém as áreas de negócio; `features` combina domínios; `shared` fornece infraestrutura comum.
+
+A organização acompanha os domínios do backend sem copiar a sua implementação. Não colocar uma chamada HTTP dentro de um ícone, nem uma regra comercial dentro de um componente visual genérico.
 
 A organização usa os mesmos cinco domínios existentes em `app/Domains`: `Users`, `Restaurants`, `Categories`, `Products` e `Orders`. No frontend os nomes usam minúsculas e ficheiros TS/TSX. Não se copiam Repositories/Actions PHP para o navegador: persistência, autorização e transações continuam no servidor.
 
@@ -202,13 +275,20 @@ resources/js/
 │       ├── types.ts                # OrderResource, itens e payload de checkout
 │       ├── rules.ts                # Quatro estados, transições, payload e canais
 │       ├── cart.ts                 # Estado e regras do carrinho
+│       ├── cart-storage.ts         # Validação, leitura e gravação do carrinho
+│       ├── hooks/use-cart.ts       # Estado persistido e associação à conta
 │       ├── services.ts             # Endpoints por ator e operações de pedido
 │       ├── realtime/connection.ts  # Echo/Reverb e autorização do canal
 │       ├── components/            # Estado da ligação e badge de pedido
 │       ├── pages/                 # cart.tsx, checkout.tsx e orders.tsx
 │       └── __tests__/             # Contratos de pedidos, permissões e valores
 ├── features/
-│   ├── portal/pages/portal.tsx     # Vitrine que combina restaurantes e produtos
+│   ├── portal/
+│   │   ├── pages/portal.tsx        # Vitrine de restaurantes e produtos
+│   │   ├── components/add-dish-button.tsx # Adicionar com contador por prato
+│   │   ├── components/android-download.tsx # Link Android ou disponibilidade futura
+│   │   ├── config/android-download.ts # Endereços APK/Play Store aceites
+│   │   └── __tests__/android-download.test.ts # Configuração e apresentação
 │   └── dashboard/pages/dashboard.tsx # Resumo de dados dos domínios
 ├── shared/
 │   ├── api/
@@ -217,6 +297,9 @@ resources/js/
 │   │   ├── payload.ts             # Seleção de campos aceites pelo backend
 │   │   ├── pagination.ts          # Query string sem perder filtros existentes
 │   │   └── __tests__/             # Testes do cliente HTTP
+│   ├── errors/
+│   │   ├── messages.ts            # Mensagens de erro em português
+│   │   └── __tests__/             # Validação das mensagens
 │   ├── hooks/use-api.ts           # Consultas abortáveis, paginação e mutations
 │   ├── components/
 │   │   ├── api-ui.tsx             # Campos, formulários, erros e confirmações
@@ -269,7 +352,127 @@ As pastas geradas `actions`, `routes` e `wayfinder` continuam a pertencer ao Way
 - Produtos enviam somente nome, tipo, preço, quantidade, categoria e estado. O restaurante do produto é determinado pelo backend a partir do utilizador.
 - O carregamento de opções de categorias percorre as páginas do paginator dentro do serviço de categorias e pode ser cancelado ao sair da tela.
 
-## Contratos utilizados
+### Exercício de verificação
+
+Localize a tela de categorias, o serviço de categorias e o tipo `Category`. Depois localize `ApiForm` e explique por que ele está em `shared` e não em `domains/categories`.
+
+## 4. Acompanhar o arranque da primeira tela
+
+**Objetivo:** entender como uma rota Laravel termina num componente React visível.
+
+**Abra estes ficheiros:** [`routes/web.php`](routes/web.php), [`resources/views/app.blade.php`](resources/views/app.blade.php), [`resources/js/app.tsx`](resources/js/app.tsx), [`resources/js/pages/welcome.tsx`](resources/js/pages/welcome.tsx) e [`resources/js/pages/dashboard.tsx`](resources/js/pages/dashboard.tsx).
+
+1. O navegador pede uma rota web, por exemplo `/`.
+2. A rota escolhe a entrada Inertia `welcome`.
+3. O documento Blade inclui os assets e o ponto de montagem.
+4. `app.tsx` inicia o Inertia, define título/layouts e monta os providers globais.
+5. `pages/welcome.tsx` monta `DeliveryHub`; `pages/dashboard.tsx` monta a mesma aplicação com `initial="dashboard"`.
+6. `DeliveryHub` monta `ApiSessionProvider` e o shell. O shell lê sessão, vista e carrinho e escolhe o conteúdo.
+7. Se a tela for carregada sob demanda, `Suspense` mostra «A carregar…» até o módulo estar pronto.
+
+```mermaid
+flowchart TD
+    A[Pedido do navegador] --> B[Rota web Laravel]
+    B --> C[Documento Blade e entrada Inertia]
+    C --> D[app.tsx]
+    D --> E[welcome.tsx ou dashboard.tsx]
+    E --> F[DeliveryHub e ApiSessionProvider]
+    F --> G[Shell: sessão, navegação e carrinho]
+    G --> H[Tela de domínio ou feature]
+```
+
+Estes dois ficheiros são pequenos de propósito:
+
+```tsx
+// resources/js/pages/welcome.tsx
+import DeliveryHub from '@/application/DeliveryHub';
+export default function Welcome() {
+    return <DeliveryHub />;
+}
+```
+
+```tsx
+// resources/js/pages/dashboard.tsx
+import DeliveryHub from '@/application/DeliveryHub';
+export default function Dashboard() {
+    return <DeliveryHub initial="dashboard" />;
+}
+```
+
+A tela com indicadores está em `features/dashboard/pages/dashboard.tsx`. Não é necessário copiar esses indicadores para a entrada Inertia. Além disso, um fragmento já presente na URL tem prioridade sobre a vista inicial.
+
+### Exercício de verificação
+
+Abra os dois `dashboard.tsx` no editor. Identifique qual é a entrada e qual implementa a tela. No navegador, compare `/`, `/#portal` e `/#dashboard`; a última opção pede sessão API para mostrar a área privada.
+
+## 5. Seguir a navegação e a gestão de estado
+
+**Objetivo:** entender o que muda num clique e onde ficam os dados durante a utilização.
+
+**Abra estes ficheiros:** [`resources/js/application/use-view.ts`](resources/js/application/use-view.ts), [`resources/js/application/DeliveryHub.tsx`](resources/js/application/DeliveryHub.tsx) e [`resources/js/shared/hooks/use-api.ts`](resources/js/shared/hooks/use-api.ts).
+
+1. Um item do menu aponta para um fragmento, por exemplo `#categories`.
+2. A alteração dispara `hashchange`.
+3. `useView` atualiza a vista em estado React.
+4. O shell escolhe a tela correspondente e mantém a estrutura partilhada.
+5. O menu é construído de acordo com o papel. As telas e serviços também verificam o contexto necessário.
+
+`/#categories` não cria uma rota PHP `/categories`. O fragmento é interpretado pelo navegador. Já `/settings/profile` é uma rota web real do Laravel.
+
+Props são dados recebidos por um componente; estado é informação que o componente/provider conserva entre renders; um efeito liga esse estado a uma operação externa, como uma consulta HTTP. Alterar `revision` pede uma nova consulta, não uma edição direta dos dados no servidor.
+
+### Onde vive cada estado
+
+| Estado                              | Local                                     | Duração e recuperação                                                  |
+| ----------------------------------- | ----------------------------------------- | ---------------------------------------------------------------------- |
+| Token Sanctum                       | `sessionStorage`, com fallback em memória | Restauro por `/auth/me`; limpeza em logout/401                         |
+| Utilizador API                      | Contexto `ApiSessionProvider`             | Obtido por login/registo ou `/auth/me`                                 |
+| Sessão web                          | Cookie/sessão Laravel                     | Fluxo separado, gerido por Fortify                                     |
+| Carrinho                            | `useCart` e `sessionStorage`              | Mantido entre telas e reloads na mesma aba; limpo ao sair/trocar conta |
+| Filtros, página e dados de listagem | Hooks da tela                             | Recarregados ao entrar; pesquisa muda a página para 1                  |
+| Formulário e erros                  | Componente de formulário                  | Preservados durante falha; não há autosave persistente                 |
+| Aparência                           | `localStorage` e cookie `appearance`      | Modo claro, escuro ou sistema dos componentes web existentes           |
+| Estado websocket                    | Componente `Connection`                   | Recriado por sessão; listeners e ligação limpos ao sair                |
+
+O portal não tem Redux, Zustand, cache persistente de consultas ou service worker. O carrinho persiste na sessão da aba; não há sincronização entre dispositivos nem navegação funcional offline garantida.
+
+### Hooks e componentes comuns
+
+| Módulo/export                                     | Como utilizar                                                                         |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `useResource<T>(path, revision)`                  | GET abortável; `null` desativa a consulta; expõe `value`, `loading`, `error`, `retry` |
+| `useList<T>(endpoint, revision, perPage, search)` | GET paginado; expõe `go`, `page`, `refresh` e os estados da consulta                  |
+| `useMutation()`                                   | Executa uma ação com bloqueio síncrono, `busy` e erro contextual                      |
+| `useSession()`                                    | Acede ao utilizador, restauro, autenticação e logout dentro do provider               |
+| `Title`, `Empty`, `LoadState`, `Feedback`         | Cabeçalhos e estados consistentes das telas                                           |
+| `SearchBox`, `Pagination`                         | Pesquisa por digitação com debounce de 300 ms e paginação por números                 |
+| `Fields`, `ApiForm`                               | Campos, labels, mensagens 422 do backend e envio sem validação HTML                   |
+| `EditDialog`, `ConfirmAction`                     | Edição e confirmação acessíveis; a ação é uma função de serviço                       |
+| `stateField`, `ActiveBadge`                       | Estado `active`/`inactive` de catálogo                                                |
+| `OrderBadge`                                      | Um dos quatro estados reais de pedido                                                 |
+
+As consultas usam `AbortController` para cancelar trabalho quando a tela muda. Não apresentar a resposta antiga de outra URL como se pertencesse à pesquisa atual. Aumentar `revision` ou chamar `retry`/`refresh` para voltar a consultar após uma alteração confirmada.
+
+### Exercício de verificação
+
+Navegue do portal para o carrinho e volte. Observe que o shell não precisa de perder o estado. Depois recarregue a página e identifique quais os dados restaurados do armazenamento e quais são consultados novamente.
+
+## 6. Percorrer login, sessão e permissões
+
+**Objetivo:** perceber o ciclo completo de autenticação API e a distinção do login web.
+
+**Abra estes ficheiros:** [`resources/js/domains/users/pages/auth.tsx`](resources/js/domains/users/pages/auth.tsx), [`resources/js/domains/users/services.ts`](resources/js/domains/users/services.ts) e [`resources/js/domains/users/context/session.tsx`](resources/js/domains/users/context/session.tsx).
+
+1. O utilizador abre `/#login` e preenche o formulário.
+2. `ApiForm` recolhe os campos e chama `authenticate` do contexto.
+3. O contexto usa `userApi.authenticate`, que envia o contrato de login.
+4. A API devolve `{ user, token }` em caso de sucesso.
+5. O provider guarda o token da aba, atualiza o utilizador e a tela navega para `#dashboard`.
+6. As chamadas protegidas seguintes enviam Bearer através do cliente comum.
+7. Num reload, o provider consulta `/auth/me` para confirmar a sessão; não aceita o papel apenas porque ficou escrito no navegador.
+8. Logout revoga o token atual no servidor e limpa a sessão local após sucesso. Um 401 também invalida o token local.
+
+O registo cria uma conta de cliente, não uma conta de staff. A criação de membros está na área Equipa e exige o papel e contexto definidos pelo backend.
 
 ### Autenticação e autorização
 
@@ -289,180 +492,41 @@ As pastas geradas `actions`, `routes` e `wayfinder` continuam a pertencer ao Way
 
 Não se inventaram permissões de entregador/operador nem uma listagem global de pedidos para o super administrador: esses contratos não estão expostos nesta API.
 
-### Catálogo e gestão
+### Exercício de verificação
 
-- Restaurantes: GET/POST `/restaurants`, PATCH/DELETE `/restaurants/{id}`. A criação envia também `admin_name`, `admin_email` e `admin_password`, exigidos pelo backend.
-- Catálogo público: GET `/restaurants/{id}/products`. Campos reais incluem `category_id`, `type`, `price`, `quantity` e `status`.
-- Produtos: POST `/products`, PATCH/DELETE `/products/{id}`. Categorias: GET/POST `/categories`, PATCH/DELETE `/categories/{id}`.
-- Equipa: POST `/restaurant/users`, com confirmação da palavra-passe. O backend não disponibiliza uma lista/edit/delete de membros; a interface não simula essas operações.
-- Desativação tem confirmação e só atualiza a interface depois de resposta bem-sucedida.
-- Formulários apresentam erros 422 por campo, erro geral, estado de envio e proteção contra duplo clique.
-- Pesquisa usa `name`; a paginação usa `page`/`per_page`, `data`, `links` e `meta` do paginator Laravel, incluindo o total devolvido pelo servidor. Não usa cursor pagination porque este backend não a fornece.
+Entre com uma conta de teste de cada papel e compare os menus. Depois confirme que abrir manualmente um fragmento privado não concede acesso. Teste um 401 com mocks, sem publicar o token real.
 
-### Carrinho e checkout
+## 7. Seguir uma consulta da tela até à API
 
-- Apenas um restaurante por pedido; adicionar um produto de outro restaurante não apaga o carrinho existente.
-- Quantidades limitadas pelo stock conhecido e pelo limite de 100 unidades por produto; máximo de 50 produtos distintos. Produtos inativos ou sem stock não podem ser adicionados.
-- O carrinho dura enquanto a aplicação está montada. Um recarregamento limpa-o. Login na mesma aplicação preserva-o; logout ou mudança de utilizador autenticado limpa-o.
-- A API envia preços como valores decimais (`"18.50"`), não como centavos. O frontend converte-os para inteiros em centavos para somar e depois formata em euros. Nunca multiplica diretamente valores monetários com ponto flutuante.
+**Objetivo:** entender como são carregados os restaurantes, produtos e outras listagens.
 
-Payload efetivamente enviado a `POST /api/v1/orders`:
+**Abra estes ficheiros:** [`resources/js/features/portal/pages/portal.tsx`](resources/js/features/portal/pages/portal.tsx), [`resources/js/shared/hooks/use-api.ts`](resources/js/shared/hooks/use-api.ts), [`resources/js/shared/api/client.ts`](resources/js/shared/api/client.ts) e os serviços do domínio.
 
-```json
-{
-    "restaurant_id": 1,
-    "address": "Morada de entrega",
-    "delivery_date": "2026-10-23",
-    "items": [{ "product_id": 10, "quantity": 2 }]
-}
+1. A tela escolhe um endpoint definido pelo domínio, por exemplo `restaurantEndpoints.list`.
+2. `useList` combina endpoint, página, quantidade por página e pesquisa.
+3. `useResource` inicia a consulta e coloca `loading` a verdadeiro.
+4. O cliente comum acrescenta prefixo, headers e credenciais apropriadas.
+5. O backend valida e devolve um Resource ou paginator.
+6. O hook guarda os dados e termina o loading, ou guarda uma mensagem de erro.
+7. A tela escolhe entre loading, erro, lista vazia e conteúdo.
+
+Os serviços concentram as rotas e as mutações, mas algumas consultas de listagem são executadas pelo hook a partir do endpoint do serviço. Não existe um Repositório de base de dados JavaScript no navegador.
+
+```mermaid
+sequenceDiagram
+    participant T as Tela
+    participant H as useList / useResource
+    participant C as Cliente HTTP
+    participant API as Laravel API
+    T->>H: Endpoint, pesquisa e página
+    H->>C: GET com AbortSignal
+    C->>API: /api/v1 + headers
+    API-->>C: JSON ou erro
+    C-->>H: Dados ou ApiError
+    H-->>T: value, loading, error
 ```
 
-`delivery_date` é omitida se estiver em branco. Não se enviam preços, totais, `address_id` ou `payment_method`: o servidor calcula o preço e valida stock, disponibilidade e restaurante.
-
-O formulário mantém a página e os dados em erros, apresenta validação por campo/item e mensagens de stock. O envio tem bloqueio síncrono e estado de loading. Em sucesso, usa o número e total retornados pelo servidor, limpa o carrinho e oferece acompanhamento.
-
-Em falha de rede ou erro 5xx, o resultado pode ser incerto. A interface orienta a consultar os pedidos antes de desbloquear outra tentativa. `X-Request-Id` é um UUID novo por pedido HTTP e serve para correlação; **não é uma chave de idempotência**. A API não implementa deduplicação de checkout, por isso não há reenvio automático.
-
-O checkout usa JSON via cliente HTTP, porque os controllers entregues devolvem API Resources/erros JSON e não redirecionamentos Inertia. Não usa `useForm`/`router.post` contra esses endpoints, evitando respostas incompatíveis com o protocolo Inertia.
-
-### Pedidos e dashboard
-
-Estados reais, provenientes de `OrderStatus`:
-
-| Estado        | Rótulo        | Ações na interface                                   |
-| ------------- | ------------- | ---------------------------------------------------- |
-| `pending`     | Pendente      | Cliente cancela; equipa inicia preparação ou cancela |
-| `in_progress` | Em preparação | Equipa conclui ou cancela                            |
-| `completed`   | Concluído     | Sem transições                                       |
-| `cancelled`   | Cancelado     | Sem transições                                       |
-
-Cliente consulta `/orders` e `/orders/{id}` e cancela em `/orders/{id}/cancel`. A equipa consulta `/restaurant/orders` e atualiza `/restaurant/orders/{id}/status`. O detalhe mostra morada, data, itens, quantidades e valores reais. O campo `status` do Resource representa o fluxo de pedido apesar do nome interno `payment_status` no modelo.
-
-O dashboard usa as mesmas listagens: total global da listagem apenas quando fornecido por `meta.total`; contagens por estado, valor e gráfico referem-se explicitamente à página carregada. O valor de pedidos não é apresentado como receita paga, pois não existe confirmação de pagamentos na API. Super administrador vê restaurantes, sem inventar estatísticas globais de encomendas.
-
-### Tempo real
-
-- Cliente subscreve `orders.{user.id}` — o sufixo é o **ID do cliente**, não o ID do pedido.
-- Equipa subscreve `restaurant.{restaurant_id}`.
-- Evento real: `.order.status.updated`, com `order_id`, `restaurant_id` e `status`.
-- A ligação só é criada com utilizador, token e `VITE_REVERB_APP_KEY`. A autorização usa `/sanctum/csrf-cookie` e `/broadcasting/auth`, com token Bearer e cabeçalho XSRF, conforme o middleware existente.
-- Echo/Reverb reconecta, apresenta estado e permite nova tentativa em falhas de autorização/ligação. As subscrições e listeners são limpos ao sair.
-- Listas de pedidos e dashboard voltam a consultar o servidor após eventos/reconexão. Existe também atualização de 30 em 30 segundos com a página visível e online, cobrindo alterações que não emitam evento.
-- A aplicação usa as variáveis públicas `VITE_REVERB_APP_KEY`, `VITE_REVERB_HOST`, `VITE_REVERB_PORT`, `VITE_REVERB_SCHEME` já previstas no projeto; o serviço Reverb e a infraestrutura de filas devem estar operacionais para entrega de eventos. Nenhuma configuração backend foi alterada.
-
-## Limites do backend identificados
-
-1. A listagem de produtos exposta é pública e filtra ativos. Não há endpoint de catálogo de gestão com produtos inativos. A interface indica essa limitação; um produto desativado na sessão pode continuar a ser editado pela resposta já recebida, mas não se promete recuperá-lo da lista após recarregar.
-2. O índice de restaurantes é público e recebe `$request->user()`, mas a rota não aplica `auth:sanctum`. Um Bearer por si só pode não ativar o contexto de utilizador nesse endpoint, condicionando a listagem de inativos/escopo administrativo. O frontend envia o token, respeita as respostas e nunca contorna a autorização. Este ponto deve ser confirmado pela equipa backend; não foi corrigido em PHP.
-3. Não existem contratos de pagamento/SDK de cartão, rotas de entregador, GPS, evento `delivery.location.updated`, auditoria de operador ou reprocessamento de entregas.
-4. Não existem sete estados de pedido, cursor pagination, endpoint de métricas globais ou suporte de idempotência. A interface usa os quatro estados e a paginação realmente disponíveis.
-5. Os Resources de produto não incluem fotografias, descrição comercial ou prato do dia. O portal usa elementos visuais neutros, sem inventar imagens ou publicidade provenientes do servidor.
-6. Definições e segurança web mantêm os componentes e contratos existentes; os endpoints de API entregues não expõem personalização global de marca/temas.
-
-## Verificação executada
-
-- `npm run types:check`: aprovado.
-- `npm run check`: formatação e lint aprovados.
-- `npm run test:frontend`: 25 testes aprovados em três ficheiros, cobrindo payload, stock, restaurante único, quantidades, valores monetários, permissões, transições, canais, eventos, autenticação HTTP e erros 422/401.
-- `npm run build`: aprovado, incluindo geração Wayfinder e assets de produção. O aviso da dependência opcional `fontaine` não impede o build.
-- Inspeção no navegador: portal abre em `http://127.0.0.1:8000/`, API retorna lista sem restaurantes publicados, navegação para carrinho vazio e formulário de login funciona.
-- Não foram criados utilizadores, restaurantes ou pedidos na base durante a verificação. O fluxo autenticado completo e a entrega efetiva de eventos Reverb precisam de contas/dados e serviços disponíveis; os testes de contrato não substituem essa validação integrada.
-- As dependências locais em `vendor` foram sincronizadas com o `composer.lock` existente para conseguir gerar as rotas e o build; os ficheiros Composer permanecem intactos.
-- O workflow `.github/workflows/deploy.yml` mantém o build de produção e passa também a executar `npm run test:frontend` antes do build.
-- A comparação SHA dos ficheiros versionados de `app`, `routes`, `database`, `config`, `bootstrap` e Composer não encontrou alterações ao backend.
-
-### Roteiro para validação integrada pela equipa
-
-1. Usar um super administrador existente, criar restaurante e administrador inicial na área Restaurantes.
-2. Entrar com o administrador do restaurante, criar categoria ativa e produto com stock/preço; criar membro da equipa se necessário.
-3. Entrar como cliente, escolher o restaurante, adicionar produtos e confirmar a morada no checkout. Confirmar o total devolvido e o detalhe em Pedidos.
-4. Noutra sessão, usar a equipa do restaurante para passar de Pendente a Em preparação e depois Concluído; confirmar atualização no cliente.
-5. Simular stock desatualizado com duas sessões: após consumir o stock numa, tentar finalizar na outra e confirmar mensagem do servidor sem perder o carrinho.
-6. Criar um pedido pendente e cancelar como cliente; confirmar estado e indisponibilidade de ações posteriores.
-7. Interromper a ligação, observar erro, consultar pedidos e só repetir checkout após verificar se houve criação. Com Reverb ativo, testar interrupção e recuperação do websocket.
-
-Esses passos criam e alteram dados reais no ambiente utilizado. Executá-los numa base destinada a testes, com as contas fornecidas pela equipa.
-
-## Limpeza do frontend
-
-Foram removidos 15 ficheiros sem utilização ou substituídos por uma composição direta:
-
-- Layout de cabeçalho alternativo, componente de cabeçalho correspondente e layouts de autenticação alternativos (`auth-card` e `auth-split`).
-- Componentes UI sem consumidores: badge, collapsible, icon, navigation-menu, placeholder-pattern, select, toggle e toggle-group.
-- `nav-footer`, juntamente com os links de exemplo para o repositório e a documentação do starter Laravel.
-- Wrappers `app-shell` e `app-content`; a composição com `SidebarProvider` e `SidebarInset` passou diretamente para o layout lateral. O tipo `AppVariant` deixou de ser necessário.
-
-As cinco dependências diretas usadas apenas pelos componentes removidos (`@radix-ui/react-collapsible`, `react-navigation-menu`, `react-select`, `react-toggle` e `react-toggle-group`) foram retiradas de `package.json` e do lockfile. As bibliotecas ainda utilizadas pelas telas de autenticação, segurança, perfil e componentes acessíveis foram mantidas.
-
-As telas de carrinho, checkout, autenticação API, dashboard, pedidos e gestão são agora carregadas com `React.lazy` e `Suspense`. Os layouts de autenticação e definições web também são carregados sob demanda. O módulo Echo/Pusher só é solicitado quando existe uma sessão API autenticada. Assim, abrir o portal público não exige descarregar antecipadamente todas as áreas de gestão e a infraestrutura websocket.
-
-A limpeza preserva as páginas referenciadas pelas rotas web/Fortify, os testes, os ficheiros gerados pelo Wayfinder e os contratos da API. Nenhum ficheiro do backend foi alterado. A análise de imports deixou de encontrar ficheiros TS/TSX sem utilização entre os módulos mantidos, considerando as entradas Inertia, declarações e testes.
-
-## Fluxo de execução e gestão de estado
-
-### Do documento HTML até à tela
-
-1. A rota web devolve uma entrada Inertia (`welcome`, `dashboard`, `auth/*` ou `settings/*`).
-2. `app.blade.php` inclui os assets e o ponto de montagem. `app.tsx` configura título, layouts, tooltips, notificações e aparência.
-3. `welcome.tsx` e `dashboard.tsx` montam `application/DeliveryHub.tsx`. Os fluxos web originais usam os layouts correspondentes.
-4. `ApiSessionProvider` tenta recuperar a sessão API através do token da aba e de `/auth/me`.
-5. `use-view.ts` lê o fragmento da URL e acompanha `hashchange`. O menu apresenta as opções permitidas pelo papel.
-6. A tela consulta os endpoints definidos pelos serviços do domínio e apresenta carregamento, dados, estado vazio ou erro.
-7. Uma mutação envia os campos do contrato, aguarda confirmação do servidor e atualiza a listagem ou a confirmação de sucesso.
-
-`/#orders` é navegação dentro da aplicação montada na raiz; não corresponde a uma rota PHP `/orders`. Mudar apenas o fragmento não remonta a aplicação inteira. Abrir uma rota web diferente pode remontá-la e perder o carrinho local.
-
-### Onde vive cada estado
-
-| Estado                              | Local                                     | Duração e recuperação                                          |
-| ----------------------------------- | ----------------------------------------- | -------------------------------------------------------------- |
-| Token Sanctum                       | `sessionStorage`, com fallback em memória | Restauro por `/auth/me`; limpeza em logout/401                 |
-| Utilizador API                      | Contexto `ApiSessionProvider`             | Obtido por login/registo ou `/auth/me`                         |
-| Sessão web                          | Cookie/sessão Laravel                     | Fluxo separado, gerido por Fortify                             |
-| Carrinho                            | `useReducer` no shell                     | Mantido entre telas hash; perdido em reload/saída da aplicação |
-| Filtros, página e dados de listagem | Hooks da tela                             | Recarregados ao entrar; pesquisa muda a página para 1          |
-| Formulário e erros                  | Componente de formulário                  | Preservados durante falha; não há autosave persistente         |
-| Aparência                           | `localStorage` e cookie `appearance`      | Modo claro, escuro ou sistema dos componentes web existentes   |
-| Estado websocket                    | Componente `Connection`                   | Recriado por sessão; listeners e ligação limpos ao sair        |
-
-O portal não tem Redux, Zustand, cache persistente de consultas ou service worker. Não promete navegação funcional offline, armazenamento durável de carrinho ou sincronização de alterações feitas sem rede.
-
-### Hooks e componentes comuns
-
-| Módulo/export                                     | Como utilizar                                                                         |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `useResource<T>(path, revision)`                  | GET abortável; `null` desativa a consulta; expõe `value`, `loading`, `error`, `retry` |
-| `useList<T>(endpoint, revision, perPage, search)` | GET paginado; expõe `go`, `page`, `refresh` e os estados da consulta                  |
-| `useMutation()`                                   | Executa uma ação com bloqueio síncrono, `busy` e erro contextual                      |
-| `useSession()`                                    | Acede ao utilizador, restauro, autenticação e logout dentro do provider               |
-| `Title`, `Empty`, `LoadState`, `Feedback`         | Cabeçalhos e estados consistentes das telas                                           |
-| `SearchBox`, `Pagination`                         | Pesquisa submetida pelo utilizador e paginação por números                            |
-| `Fields`, `ApiForm`                               | Campos, labels, constraints HTML, mensagens 422 e envio controlado                    |
-| `EditDialog`, `ConfirmAction`                     | Edição e confirmação acessíveis; a ação é uma função de serviço                       |
-| `stateField`, `ActiveBadge`                       | Estado `active`/`inactive` de catálogo                                                |
-| `OrderBadge`                                      | Um dos quatro estados reais de pedido                                                 |
-
-As consultas usam `AbortController` para cancelar trabalho quando a tela muda. Não apresentar a resposta antiga de outra URL como se pertencesse à pesquisa atual. Aumentar `revision` ou chamar `retry`/`refresh` para voltar a consultar após uma alteração confirmada.
-
-### Cliente HTTP e erros
-
-`shared/api/client.ts` define o prefixo `/api/v1`, JSON, `credentials: same-origin`, Bearer quando aplicável, XSRF quando existe cookie e um `X-Request-Id` por chamada. Pedidos públicos de login/registo não enviam Bearer. URLs de outra origem são rejeitadas pelo cliente.
-
-`ApiError` transporta `status`, `fields` e `requestId`. O campo `errors` do Laravel é normalizado para uma mensagem por campo. Uma mensagem de domínio pode vir apenas em `message`; não pressupor que todo 422 contém `errors`.
-
-| Situação                    | Tratamento/validação esperados                                                |
-| --------------------------- | ----------------------------------------------------------------------------- |
-| 401                         | Token local invalidado e sessão API terminada; solicitar novo login           |
-| 403                         | Apresentar recusa; não inventar outra rota para contornar a permissão         |
-| 404                         | Apresentar o erro do recurso e permitir regressar à listagem                  |
-| 419                         | Mensagem de sessão expirada; relevante sobretudo para fluxos web/broadcasting |
-| 422 com `errors`            | Mostrar erro junto do campo/item e permitir corrigir                          |
-| 422 com apenas `message`    | Mostrar mensagem contextual, por exemplo stock insuficiente                   |
-| 429                         | Mostrar erro retornado; não fazer tentativas automáticas ilimitadas           |
-| 5xx ou falha de rede        | Mensagem de falha; no checkout, confirmar se houve criação antes de repetir   |
-| Sucesso sem JSON inesperado | Mensagem de resposta inesperada; 204 é aceite como ausência de corpo          |
-
-Os tipos TypeScript não validam JSON em tempo de execução. Mudanças incompatíveis nos Resources continuam a poder provocar falhas; validar contratos nos serviços/testes e manter o backend como fonte da verdade.
+Uma consulta antiga é cancelada quando a sua URL deixa de ser a atual. Isto evita tratar a pesquisa anterior como se fosse o resultado da nova.
 
 ### Campos principais dos Resources
 
@@ -501,7 +565,324 @@ Todos os caminhos abaixo têm prefixo `/api/v1`:
 
 Não acrescentar `/api/v1` duas vezes ao chamar os serviços. Não usar o router Inertia para endpoints que devolvem JSON puro. Os formulários web originais continuam a usar os contratos Inertia/Fortify e rotas geradas pelo Wayfinder.
 
-## Interface, estilos e acessibilidade
+### Exercício de verificação
+
+No separador Network, abrir um restaurante e identificar o GET do detalhe e o GET dos produtos. Comparar o JSON com os tipos em `types.ts`; não procurar campos de modelo que o Resource não expõe.
+
+## 8. Pesquisar enquanto escreve e paginar
+
+**Objetivo:** seguir o caminho do texto digitado até à lista filtrada, sem botão de pesquisa.
+
+**Abra estes ficheiros:** [`resources/js/shared/components/api-ui.tsx`](resources/js/shared/components/api-ui.tsx), [`resources/js/shared/api/pagination.ts`](resources/js/shared/api/pagination.ts) e a tela consultada.
+
+1. `SearchBox` atualiza o valor local em cada alteração do input.
+2. Um timer espera 300 ms sem uma nova alteração; o timer anterior é limpo.
+3. `onSearch` atualiza o estado de pesquisa da tela.
+4. `useList` passa a usar a primeira página e constrói `name` na query string.
+5. A consulta anterior é substituída e a nova resposta atualiza a lista.
+6. Limpar o input remove o filtro. Enter permite antecipar a pesquisa.
+
+Exemplo ilustrativo de URL, sem fixar IDs reais: `/api/v1/restaurants?per_page=12&page=1&name=Casa`. Quando existe um filtro `id`, `listUrl` mantém esse filtro ao acrescentar os restantes parâmetros.
+
+Paginar não significa carregar toda a base no navegador. O frontend utiliza a página e os totais devolvidos pelo servidor; não calcula um total global com o comprimento de uma única página.
+
+### Exercício de verificação
+
+Prepare mais de 12 registos de teste. Pesquise sem Enter, avance uma página, altere a pesquisa e confirme a primeira página. Limpe o campo e confirme a reposição dos resultados sem perder o filtro de restaurante.
+
+## 9. Estudar um CRUD completo com categorias
+
+**Objetivo:** acompanhar leitura, criação, edição, erro e desativação numa área concreta.
+
+**Abra estes ficheiros:** [`resources/js/domains/categories/pages/categories.tsx`](resources/js/domains/categories/pages/categories.tsx), [`resources/js/domains/categories/services.ts`](resources/js/domains/categories/services.ts) e [`resources/js/shared/components/api-ui.tsx`](resources/js/shared/components/api-ui.tsx).
+
+Use esta tela como exemplo para aprender as restantes áreas de gestão.
+
+### Passo A — entrar e carregar a lista
+
+1. O shell escolhe `CategoriesManagement` para `#categories`.
+2. A tela obtém o utilizador através de `useSession`.
+3. `isTeam(user)` verifica papel de equipa e restaurante associado.
+4. Quando esse contexto existe, `useList<Category>` consulta o endpoint de categorias. Caso contrário, o endpoint é `null` e a consulta não começa.
+5. `LoadState`, `Empty` e a listagem apresentam o estado da operação.
+
+### Passo B — abrir o formulário
+
+1. O clique em «Nova categoria» executa `setEdit('new')`.
+2. O estado faz aparecer `EditDialog` e `ApiForm`.
+3. Os campos são apresentados pelo componente `Fields`.
+4. Os inputs não impedem o envio por validação HTML. A indicação de campo obrigatório é informativa.
+
+### Passo C — enviar para o serviço
+
+A chamada real é equivalente a:
+
+```ts
+categoryApi.save(edit === 'new' ? null : edit.id, data);
+```
+
+Com `id === null`, o serviço usa POST `/categories`; com ID, usa PATCH `/categories/{id}`. `payloadFields` seleciona somente `name` e `status`. Um campo visual extra não é automaticamente enviado como permissão ou restaurante.
+
+Exemplo de corpo JSON:
+
+```json
+{
+    "name": "Pratos de teste",
+    "status": "active"
+}
+```
+
+### Passo D — receber sucesso ou erro
+
+Em sucesso, o callback fecha o diálogo, mostra confirmação e chama `list.refresh()`. A lista volta a ser consultada no servidor; não se inventa um registo definitivo apenas porque o utilizador carregou em Guardar.
+
+Em 422, o cliente constrói `ApiError`; `ApiForm` apresenta mensagens por campo e mantém os dados para correção. O bloqueio de envio é libertado depois de a chamada terminar. Nenhum erro do backend deve ser convertido numa confirmação falsa.
+
+### Passo E — editar ou desativar
+
+Editar coloca o objeto em `edit`, preenchendo o formulário com os dados recebidos. Desativar coloca-o em `remove` e abre `ConfirmAction`. Só a confirmação chama `categoryApi.deactivate(id)`. Depois de sucesso, a lista é atualizada.
+
+A mesma sequência existe, com os campos próprios, nas áreas de restaurantes e produtos. A área Equipa tem criação, mas não uma listagem/edição de membros que o backend não fornece.
+
+### Catálogo e gestão
+
+- Restaurantes: GET/POST `/restaurants`, PATCH/DELETE `/restaurants/{id}`. A criação envia também `admin_name`, `admin_email` e `admin_password`, exigidos pelo backend.
+- Catálogo público: GET `/restaurants/{id}/products`. Campos reais incluem `category_id`, `type`, `price`, `quantity` e `status`.
+- Produtos: POST `/products`, PATCH/DELETE `/products/{id}`. Categorias: GET/POST `/categories`, PATCH/DELETE `/categories/{id}`.
+- Equipa: POST `/restaurant/users`, com confirmação da palavra-passe. O backend não disponibiliza uma lista/edit/delete de membros; a interface não simula essas operações.
+- Desativação tem confirmação e só atualiza a interface depois de resposta bem-sucedida.
+- Formulários apresentam erros 422 por campo, erro geral, estado de envio e proteção contra duplo clique.
+- Pesquisa usa `name`; a paginação usa `page`/`per_page`, `data`, `links` e `meta` do paginator Laravel, incluindo o total devolvido pelo servidor. Não usa cursor pagination porque este backend não a fornece.
+
+### Exercício de verificação
+
+Com uma conta de equipa de teste: criar «Pratos de teste», pesquisar pelo nome, editar e desativar. Submeter um nome inválido/duplicado num ambiente de teste e confirmar que o erro é do backend, que os dados não desaparecem e que não houve criação falsa.
+
+## 10. Adicionar pratos e restaurar o carrinho
+
+**Objetivo:** entender como uma ação local atualiza quantidades e sobrevive a um reload.
+
+**Abra estes ficheiros:** [`resources/js/features/portal/components/add-dish-button.tsx`](resources/js/features/portal/components/add-dish-button.tsx), [`resources/js/domains/orders/cart.ts`](resources/js/domains/orders/cart.ts), [`resources/js/domains/orders/hooks/use-cart.ts`](resources/js/domains/orders/hooks/use-cart.ts) e [`resources/js/domains/orders/cart-storage.ts`](resources/js/domains/orders/cart-storage.ts).
+
+1. O portal recebe os itens do carrinho e a função `onAdd` do shell.
+2. O botão de um prato apresenta a quantidade desse produto nos itens reais.
+3. Um clique envia a ação `add` ao reducer.
+4. O reducer aplica restaurante único, stock conhecido e limite por item, devolvendo um novo estado sem alterar o anterior.
+5. O cabeçalho soma as quantidades. O botão de cada prato lê a quantidade correspondente; não mantém um contador separado.
+6. `useCart` grava os itens e o ID da conta na sessão da aba.
+7. Num reload, o initializer restaura os dados válidos antes de apresentar os contadores.
+
+Adicionar ao carrinho não reserva stock e não cria um pedido. Os preços e quantidades guardados são a última informação conhecida. O backend continua a decidir disponibilidade e total no checkout.
+
+`domains/orders/hooks/use-cart.ts` usa `cart-storage.ts` para restaurar o carrinho ao montar a aplicação e gravar alterações na chave `deliveryhub.cart.v1` do `sessionStorage`. São guardados itens, quantidades e ID da conta associada, sem morada, palavra-passe ou token nesse registo.
+
+A implementação espera pelo restauro da sessão antes de interpretar uma mudança de conta como logout. Se a consulta de sessão falhar temporariamente e o token continuar presente, não apaga imediatamente o carrinho. O login de visitante preserva os itens; logout, mudança de conta, limpeza manual e checkout confirmado removem os itens persistidos.
+
+JSON corrompido, versões desconhecidas, duplicados, restaurantes misturados e quantidades inválidas são descartados. Se o armazenamento for bloqueado pelo navegador, o estado continua funcional em memória. O carrinho pertence à sessão da aba; não é sincronizado entre dispositivos e não constitui um carrinho persistente no servidor.
+
+Preços e stock restaurados são a última informação conhecida. O checkout continua a usar preços calculados e disponibilidade validada pelo backend.
+
+### Teste de atualização do navegador
+
+1. Adicionar um prato e confirmar o contador no cabeçalho e no botão.
+2. Atualizar a página na mesma aba e confirmar que as quantidades permanecem.
+3. Abrir o carrinho, alterar a quantidade, atualizar e verificar o resumo.
+4. Limpar o carrinho, atualizar e confirmar que os itens não reaparecem.
+5. Repetir com login na mesma conta, logout e mudança de conta, usando fixtures de teste.
+6. Confirmar mensagens de stock se a disponibilidade tiver mudado no servidor.
+
+A suíte `cart-storage.test.ts` cobre restauro, associação à conta, limpeza, conteúdo corrompido, limites e armazenamento bloqueado. A verificação manual de reload já confirmou a conservação da quantidade no navegador; o fluxo completo de checkout autenticado continua dependente de dados e serviços de teste.
+
+### Exercício de verificação
+
+Adicionar um prato, abrir o carrinho e recarregar a página na mesma aba. Confirmar quantidade no resumo, cabeçalho e botão do prato. Depois remover o prato e recarregar: os itens não devem reaparecer. Não esperar sincronização com outro dispositivo.
+
+## 11. Concluir o pedido e recuperar de falhas
+
+**Objetivo:** seguir a primeira mutação comercial do cliente, com confirmação do servidor.
+
+**Abra estes ficheiros:** [`resources/js/domains/orders/pages/checkout.tsx`](resources/js/domains/orders/pages/checkout.tsx), [`resources/js/domains/orders/rules.ts`](resources/js/domains/orders/rules.ts) e [`resources/js/domains/orders/services.ts`](resources/js/domains/orders/services.ts).
+
+1. O cliente abre `#checkout` com itens e uma sessão API de cliente.
+2. A tela apresenta a morada, data opcional e resumo calculado a partir dos itens.
+3. O submit impede o comportamento padrão do formulário e usa um bloqueio síncrono para evitar chamadas repetidas enquanto processa.
+4. `checkoutPayload` monta os campos do contrato, sem enviar preços calculados pelo navegador.
+5. `orderApi.create` chama POST `/orders`.
+6. O backend valida, calcula o total e confirma a criação.
+7. O frontend mostra o ID e total recebidos, limpa o carrinho e oferece acompanhamento.
+8. Em 422, mantém os itens/dados para corrigir. Em falha de rede/5xx, orienta a consultar os pedidos antes de repetir, porque o resultado pode ser incerto.
+
+A regra de apresentação em AOA não converte preços de outra moeda. Valores decimais são convertidos para inteiros em centavos para a soma, e a confirmação do servidor prevalece.
+
+### Carrinho e checkout
+
+- Apenas um restaurante por pedido; adicionar um produto de outro restaurante não apaga o carrinho existente.
+- Quantidades limitadas pelo stock conhecido e pelo limite de 100 unidades por produto; máximo de 50 produtos distintos. Produtos inativos ou sem stock não podem ser adicionados.
+- O carrinho é guardado no `sessionStorage` da aba e restaurado ao atualizar a página. Login na mesma aplicação preserva-o; logout ou mudança de utilizador autenticado limpa-o.
+- A API envia preços como valores decimais (`"18.50"`), não como centavos. O frontend converte-os para inteiros em centavos para somar e depois formata em kwanzas (AOA). Nunca multiplica diretamente valores monetários com ponto flutuante.
+
+Payload efetivamente enviado a `POST /api/v1/orders`:
+
+```json
+{
+    "restaurant_id": 1,
+    "address": "Morada de entrega",
+    "delivery_date": "2026-10-23",
+    "items": [{ "product_id": 10, "quantity": 2 }]
+}
+```
+
+`delivery_date` é omitida se estiver em branco. Não se enviam preços, totais, `address_id` ou `payment_method`: o servidor calcula o preço e valida stock, disponibilidade e restaurante.
+
+O formulário mantém a página e os dados em erros, apresenta validação por campo/item e mensagens de stock. O envio tem bloqueio síncrono e estado de loading. Em sucesso, usa o número e total retornados pelo servidor, limpa o carrinho e oferece acompanhamento.
+
+Em falha de rede ou erro 5xx, o resultado pode ser incerto. A interface orienta a consultar os pedidos antes de desbloquear outra tentativa. `X-Request-Id` é um UUID novo por pedido HTTP e serve para correlação; **não é uma chave de idempotência**. A API não implementa deduplicação de checkout, por isso não há reenvio automático.
+
+O checkout usa JSON via cliente HTTP, porque os controllers entregues devolvem API Resources/erros JSON e não redirecionamentos Inertia. Não usa `useForm`/`router.post` contra esses endpoints, evitando respostas incompatíveis com o protocolo Inertia.
+
+### Exercício de verificação
+
+Com dados de teste, concluir um pedido e comparar o total confirmado com a resposta HTTP. Depois executar o cenário de stock desatualizado e perda de resposta descrito na etapa de falhas. Não reenviar automaticamente um checkout que pode ter sido gravado.
+
+## 12. Acompanhar pedidos, detalhes e dashboard
+
+**Objetivo:** distinguir as ações do cliente, da equipa e as métricas realmente disponíveis.
+
+**Abra estes ficheiros:** [`resources/js/domains/orders/pages/orders.tsx`](resources/js/domains/orders/pages/orders.tsx), [`resources/js/domains/orders/services.ts`](resources/js/domains/orders/services.ts) e [`resources/js/features/dashboard/pages/dashboard.tsx`](resources/js/features/dashboard/pages/dashboard.tsx).
+
+1. `orderEndpoint(user)` escolhe pedidos do cliente ou pedidos do restaurante, ou `null` se o papel não tem esse contrato.
+2. A listagem mostra os dados paginados e o botão «Ver detalhes» muda a vista para `#order/{id}`.
+3. O detalhe faz nova consulta autorizada; não depende apenas da linha previamente mostrada.
+4. `transitions` define ações apresentáveis segundo o estado e papel.
+5. A confirmação chama o serviço, que também verifica a pertença do pedido ao restaurante da equipa antes do envio.
+6. O backend confirma ou recusa a transição. A interface volta a consultar os dados após sucesso.
+
+O dashboard é uma composição das mesmas fontes de dados, não um endpoint independente de estatísticas globais. O valor de pedidos não é prova de receita paga.
+
+### Pedidos e dashboard
+
+Estados reais, provenientes de `OrderStatus`:
+
+| Estado        | Rótulo        | Ações na interface                                   |
+| ------------- | ------------- | ---------------------------------------------------- |
+| `pending`     | Pendente      | Cliente cancela; equipa inicia preparação ou cancela |
+| `in_progress` | Em preparação | Equipa conclui ou cancela                            |
+| `completed`   | Concluído     | Sem transições                                       |
+| `cancelled`   | Cancelado     | Sem transições                                       |
+
+Cliente consulta `/orders` e `/orders/{id}` e cancela em `/orders/{id}/cancel`. A equipa consulta `/restaurant/orders` e atualiza `/restaurant/orders/{id}/status`. O detalhe mostra morada, data, itens, quantidades e valores reais. O campo `status` do Resource representa o fluxo de pedido apesar do nome interno `payment_status` no modelo.
+
+O dashboard usa as mesmas listagens: total global da listagem apenas quando fornecido por `meta.total`; contagens por estado, valor e gráfico referem-se explicitamente à página carregada. O valor de pedidos não é apresentado como receita paga, pois não existe confirmação de pagamentos na API. Super administrador vê restaurantes, sem inventar estatísticas globais de encomendas.
+
+### Exercício de verificação
+
+Criar um pedido com cliente de teste e usar a equipa do mesmo restaurante para iniciar e concluir a preparação. Confirmar que os estados terminais não apresentam novas ações e que um super administrador não recebe operações de staff.
+
+## 13. Entender eventos e reconexão
+
+**Objetivo:** perceber como um evento provoca nova consulta sem substituir os dados autoritativos.
+
+**Abra estes ficheiros:** [`resources/js/domains/orders/realtime/connection.ts`](resources/js/domains/orders/realtime/connection.ts) e [`resources/js/domains/orders/components/connection.tsx`](resources/js/domains/orders/components/connection.tsx).
+
+1. Com sessão e configuração pública adequadas, o cliente cria Echo/Reverb.
+2. Obtém cookie XSRF e solicita autorização do canal privado com o token.
+3. Subscreve o canal correto para cliente ou equipa.
+4. Um evento de estado é validado e pede atualização dos dados.
+5. A tela volta a consultar a API; o evento não substitui a verificação do servidor.
+6. Perda de ligação muda o estado apresentado. Reconexão volta a sincronizar dados; sair limpa listeners e subscrição.
+
+A atualização periódica de 30 segundos é uma alternativa quando a aba está visível e online. Ver a tela mudar depois de 30 segundos, por si só, não comprova que o websocket funciona.
+
+### Tempo real
+
+- Cliente subscreve `orders.{user.id}` — o sufixo é o **ID do cliente**, não o ID do pedido.
+- Equipa subscreve `restaurant.{restaurant_id}`.
+- Evento real: `.order.status.updated`, com `order_id`, `restaurant_id` e `status`.
+- A ligação só é criada com utilizador, token e `VITE_REVERB_APP_KEY`. A autorização usa `/sanctum/csrf-cookie` e `/broadcasting/auth`, com token Bearer e cabeçalho XSRF, conforme o middleware existente.
+- Echo/Reverb reconecta, apresenta estado e permite nova tentativa em falhas de autorização/ligação. As subscrições e listeners são limpos ao sair.
+- Listas de pedidos e dashboard voltam a consultar o servidor após eventos/reconexão. Existe também atualização de 30 em 30 segundos com a página visível e online, cobrindo alterações que não emitam evento.
+- A aplicação usa as variáveis públicas `VITE_REVERB_APP_KEY`, `VITE_REVERB_HOST`, `VITE_REVERB_PORT`, `VITE_REVERB_SCHEME` já previstas no projeto; o serviço Reverb e a infraestrutura de filas devem estar operacionais para entrega de eventos. Nenhuma configuração backend foi alterada.
+
+### Exercício de verificação
+
+Usar cliente e equipa em perfis separados. Observar o evento no instante da mudança de estado e a consulta HTTP seguinte. Interromper só o websocket, recuperar o serviço e confirmar reconexão sem confundir com a atualização periódica.
+
+## 14. Tratar validação e mensagens de erro
+
+**Objetivo:** seguir a resposta de erro até à mensagem acessível apresentada ao utilizador.
+
+**Abra estes ficheiros:** [`resources/js/shared/api/client.ts`](resources/js/shared/api/client.ts), [`resources/js/shared/errors/messages.ts`](resources/js/shared/errors/messages.ts), [`resources/js/shared/components/api-ui.tsx`](resources/js/shared/components/api-ui.tsx) e [`resources/js/components/input-error.tsx`](resources/js/components/input-error.tsx).
+
+1. A API devolve um estado HTTP e, quando aplicável, `errors` por campo.
+2. O cliente preserva estado e referência, normaliza os erros e cria `ApiError`.
+3. O formulário associa os campos e mostra um resumo da falha.
+4. O catálogo transforma mensagens conhecidas em português e evita expor detalhes internos.
+5. O utilizador corrige os dados e submete novamente; não se passa a validar tudo com HTML para impedir a chamada.
+
+Exemplo da transformação, não de validação no navegador:
+
+```text
+Backend: The email field is required.
+Frontend: Preencha o campo «Email».
+```
+
+`noValidate` permite enviar o formulário ao backend. O asterisco e `aria-required` comunicam o contrato, mas não bloqueiam o envio. Loading, permissões de apresentação e regras do carrinho são controlos de interação distintos da validação nativa HTML.
+
+### Cliente HTTP e erros
+
+`shared/api/client.ts` define o prefixo `/api/v1`, JSON, `credentials: same-origin`, Bearer quando aplicável, XSRF quando existe cookie e um `X-Request-Id` por chamada. Pedidos públicos de login/registo não enviam Bearer. URLs de outra origem são rejeitadas pelo cliente.
+
+`ApiError` transporta `status`, `fields` e `requestId`. O campo `errors` do Laravel é normalizado para uma mensagem por campo. Uma mensagem de domínio pode vir apenas em `message`; não pressupor que todo 422 contém `errors`.
+
+| Situação                    | Tratamento/validação esperados                                                |
+| --------------------------- | ----------------------------------------------------------------------------- |
+| 401                         | Token local invalidado e sessão API terminada; solicitar novo login           |
+| 403                         | Apresentar recusa; não inventar outra rota para contornar a permissão         |
+| 404                         | Apresentar o erro do recurso e permitir regressar à listagem                  |
+| 419                         | Mensagem de sessão expirada; relevante sobretudo para fluxos web/broadcasting |
+| 422 com `errors`            | Mostrar erro junto do campo/item e permitir corrigir                          |
+| 422 com apenas `message`    | Mostrar mensagem contextual, por exemplo stock insuficiente                   |
+| 429                         | Mostrar erro retornado; não fazer tentativas automáticas ilimitadas           |
+| 5xx ou falha de rede        | Mensagem de falha; no checkout, confirmar se houve criação antes de repetir   |
+| Sucesso sem JSON inesperado | Mensagem de resposta inesperada; 204 é aceite como ausência de corpo          |
+
+Os tipos TypeScript não validam JSON em tempo de execução. Mudanças incompatíveis nos Resources continuam a poder provocar falhas; validar contratos nos serviços/testes e manter o backend como fonte da verdade.
+
+`shared/errors/messages.ts` centraliza `friendlyMessage`, `fieldLabel` e `httpMessage`. O cliente HTTP normaliza mensagens antes de construir `ApiError`; `input-error.tsx`, `alert-error.tsx` e notificações flash de erro usam o mesmo catálogo nos fluxos web.
+
+| Caso                           | Apresentação                                                 |
+| ------------------------------ | ------------------------------------------------------------ |
+| Campo obrigatório              | Pedido em português para preencher o campo identificado      |
+| Email inválido                 | Orientação para introduzir um endereço válido                |
+| Confirmação de palavra-passe   | Indicação de que os dois valores não correspondem            |
+| Comprimento ou limite numérico | Valor mínimo/máximo indicado pelo servidor                   |
+| Credenciais incorretas         | Mensagem específica de email ou palavra-passe incorretos     |
+| Sessão expirada                | Pedido de novo login                                         |
+| Conta inativa                  | Orientação para contactar o administrador                    |
+| 403                            | Falta de permissão, sem oferecer ações de outro papel        |
+| 404                            | Registo indisponível; voltar à listagem e atualizar          |
+| 429                            | Aguardar antes de repetir                                    |
+| 5xx ou erro técnico            | Mensagem de indisponibilidade sem SQL, paths ou stack traces |
+| Falha de rede                  | Orientação para verificar a ligação                          |
+| Stock insuficiente             | Mensagem de negócio preservada                               |
+
+`items.1.quantity` é apresentado como «Quantidade do prato 2». O resumo dos 422 não repete o texto inglês «and 1 more error». O estado HTTP e o `X-Request-Id` são preservados para diagnóstico; a validação continua no backend.
+
+Mensagens desconhecidas e não técnicas mantêm-se como recebidas. Para uma nova mensagem em inglês, acrescentar correspondência e teste em `shared/errors/__tests__/messages.test.ts`; não inventar uma causa ou uma regra de validação no navegador.
+
+### Exercício de verificação
+
+Enviar login vazio em desenvolvimento e confirmar pedido HTTP e mensagens em português. Consultar os testes para 403/404/429/5xx em vez de provocar falhas deliberadas na base real. Confirmar que não foi reintroduzido `required` ou `pattern` como bloqueio nativo.
+
+## 15. Compor a interface e disponibilizar Android
+
+**Objetivo:** perceber estilos partilhados, acessibilidade, carregamento e configuração de download.
+
+**Abra estes ficheiros:** [`resources/css/app.css`](resources/css/app.css), [`resources/js/shared/components/api-ui.tsx`](resources/js/shared/components/api-ui.tsx), [`resources/js/app.tsx`](resources/js/app.tsx) e [`resources/js/features/portal/components/android-download.tsx`](resources/js/features/portal/components/android-download.tsx).
+
+As cores e os componentes comuns ajudam a manter consistência, mas não substituem testar contraste, foco e responsividade. A preferência web claro/escuro/sistema não significa que todas as telas do portal tenham um tema escuro completo.
+
+O botão Android representa uma aplicação existente: não transforma o build React num APK. Sem um ficheiro ou página real configurada, apresenta «Disponível em breve».
 
 ### Estilos e personalização
 
@@ -509,7 +890,7 @@ O portal e a gestão usam Tailwind, superfícies claras, tons slate e destaque l
 
 A preferência claro/escuro/sistema das telas web existentes é mantida por `hooks/use-appearance.tsx`, pela classe `dark` no HTML e pelo cookie de aparência. As telas novas têm várias cores explícitas e **não implementam uma adaptação completa ao modo escuro**. Não existe neste estado um seletor de 20 temas, nem persistência de personalização global de marca na API.
 
-Para alterar o tema, começar pelos estilos partilhados e pelos tokens realmente usados. Rever botões, foco, badges, mensagens e fundos em todas as telas; não alterar apenas uma cor de destaque e considerar a aplicação inteira validada. A moeda atual é EUR e a apresentação usa `pt-PT`; não existe seleção de moeda por restaurante. As datas usam a formatação local do navegador em português.
+Para alterar o tema, começar pelos estilos partilhados e pelos tokens realmente usados. Rever botões, foco, badges, mensagens e fundos em todas as telas; não alterar apenas uma cor de destaque e considerar a aplicação inteira validada. A moeda atual é AOA (kwanza angolano), com código `AOA` explícito e formatação monetária `pt-AO`; não existe seleção de moeda por restaurante. A apresentação em AOA mantém os números recebidos da API, sem aplicar câmbio. Todos os preços e totais usam `shared/utils/money.ts`. As datas usam a formatação local do navegador em português.
 
 O portal usa placeholders gráficos para produtos porque o Resource não fornece imagem/descrição. Não apresentar imagens de exemplo como se tivessem sido publicadas pelo restaurante.
 
@@ -535,26 +916,83 @@ O build produz assets versionados em `public/build`; esses ficheiros são gerado
 
 Não interpretar uma divisão em vários chunks como garantia de menos bytes totais. A melhoria pretendida é adiar o carregamento de funcionalidades que ainda não foram abertas. Não aumentar artificialmente o limite de aviso de tamanho para esconder uma regressão.
 
-## Guia de testes automatizados
+### Aplicação Android
+
+O portal público apresenta uma área «DeliveryHub no seu telemóvel», através de `features/portal/components/android-download.tsx`, logo após o destaque inicial. Não exige login para consultar o link de instalação.
+
+O endereço é configurado pela variável pública `VITE_ANDROID_APP_URL`. Exemplos (escolher apenas a alternativa correspondente à distribuição real):
+
+```dotenv
+# APK disponibilizado no mesmo site
+VITE_ANDROID_APP_URL=/downloads/deliveryhub.apk
+```
+
+```dotenv
+# APK publicado num alojamento HTTPS
+VITE_ANDROID_APP_URL=https://downloads.example.test/deliveryhub.apk
+```
+
+```dotenv
+# Página real da aplicação na Play Store; substituir o identificador de exemplo
+VITE_ANDROID_APP_URL=https://play.google.com/store/apps/details?id=com.exemplo.deliveryhub
+```
+
+Após alterar `.env`, reiniciar `npm run dev`; para servir assets compilados, executar `npm run build` e publicar os assets com a configuração correspondente. O endereço será público nos assets, pelo que não deve conter credenciais privadas.
+
+### Disponibilizar o APK
+
+1. Obter a versão Android de distribuição (APK assinado) da equipa responsável pela aplicação. O projeto atual não contém código Android nem gera um APK a partir do build React.
+2. Para alojamento local, colocar o ficheiro real em `public/downloads/deliveryhub.apk` e configurar o caminho acima. Não é necessário adicionar uma rota PHP para um ficheiro público servido pelo web server.
+3. Para alojamento externo, publicar o APK por HTTPS ou fornecer a página real da Play Store e configurar a respetiva URL.
+4. Confirmar que o endereço responde com o ficheiro correto, sem login obrigatório, redirect indevido ou página de erro. Num host externo, o comportamento de download também depende dos cabeçalhos devolvidos por esse host.
+5. Abrir o portal num Android de teste, iniciar o download ou abrir a loja e confirmar que a aplicação correta pode ser instalada. O portal não instala aplicações automaticamente nem contorna confirmações do Android.
+
+### Estados e limites
+
+- Com APK configurado: botão «Baixar para Android». Para ficheiros locais, o link inclui o nome de download `DeliveryHub.apk`.
+- Com Play Store configurada: botão «Obter na Google Play», aberto numa nova aba.
+- Sem URL válida: «Disponível em breve», sem link falso ou download de um ficheiro inexistente. O cliente pode continuar a fazer pedidos no portal.
+- `config/android-download.ts` aceita caminhos locais terminados em `.apk`, APKs HTTPS ou páginas de aplicação da Play Store com identificador. Rejeita esquemas executáveis, credenciais embutidas e ficheiros de outro tipo.
+- A validação de URL não comprova que o ficheiro existe nem que a aplicação foi publicada. Esses passos requerem um APK ou link real, ainda não incluído na implementação inicial.
+
+Os cinco testes automatizados cobrem a configuração e os estados visuais. A instalação Android real depende do artefacto disponibilizado; não foi realizada nem é substituída pelo build do frontend.
+
+### Exercício de verificação
+
+Repetir portal, formulário e detalhe em 360 px, 768 px e 1280 px, e com teclado. Para Android, confirmar primeiro a configuração e o ficheiro real; só depois testar download/instalação num dispositivo apropriado.
+
+## 16. Executar e escrever testes automatizados
+
+**Objetivo:** compreender o que a suíte comprova e criar um teste que encontre uma regressão real.
+
+**Abra estes ficheiros:** [`vitest.frontend.config.ts`](vitest.frontend.config.ts), [`resources/js/domains/orders/__tests__`](resources/js/domains/orders/__tests__), [`resources/js/shared/api/__tests__`](resources/js/shared/api/__tests__) e [`resources/js/__tests__/integration`](resources/js/__tests__/integration).
+
+Comece por uma regra pura, como quantidade no carrinho. Depois acompanhe um teste com `fetch` simulado e, por fim, um teste de HTML estático. São níveis diferentes: nenhum deles abre automaticamente um browser ou executa Laravel.
+
+Para uma alteração nova, escrever um teste de comportamento relevante (sucesso e falha aplicáveis), executá-lo isoladamente e depois executar a suíte. Não criar testes apenas para repetir o mesmo código sem comprovar um resultado.
 
 ### O que já existe
 
 A configuração está em `vitest.frontend.config.ts`:
 
-- Runtime **Node**, sem DOM, navegador ou base de dados.
+- Runtime **Node**, sem DOM, navegador ou base de dados. Os testes estruturais de componentes renderizam HTML estático com `react-dom/server`; não simulam interação DOM.
 - Descoberta: `resources/js/**/__tests__/**/*.test.ts`.
 - Imports do runner: `vite-plus/test`.
 - Alias `@` para `resources/js`.
 - `clearMocks` e `restoreMocks` ativos; os testes que criam globals devem também usar `vi.unstubAllGlobals()` na limpeza.
 
-| Ficheiro                                     | Testes atuais | Cobertura funcional                                                                                                                         |
-| -------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `domains/orders/__tests__/contracts.test.ts` | 12            | Payload de checkout, morada, itens distintos, restaurante único, stock, quantidade, centavos, papéis, transições e eventos/canais           |
-| `shared/api/__tests__/client.test.ts`        | 4             | Prefixo/token/corpo HTTP, erros 422, request ID, login público, rejeição de origem externa e expiração 401                                  |
-| `__tests__/integration/services.test.ts`     | 9             | Endpoints por papel/contexto, filtros com paginação, payload de restaurante/produto/login, transições e carregamento paginado de categorias |
-| **Total**                                    | **25**        | Regras e integração interna dos serviços frontend                                                                                           |
+| Ficheiro                                             | Testes atuais | Cobertura funcional                                                                                                                         |
+| ---------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `domains/orders/__tests__/contracts.test.ts`         | 13            | Payload de checkout, morada, itens distintos, restaurante único, stock, quantidade, centavos, papéis, transições e eventos/canais           |
+| `shared/api/__tests__/client.test.ts`                | 4             | Prefixo/token/corpo HTTP, erros 422, request ID, login público, rejeição de origem externa e expiração 401                                  |
+| `__tests__/integration/services.test.ts`             | 9             | Endpoints por papel/contexto, filtros com paginação, payload de restaurante/produto/login, transições e carregamento paginado de categorias |
+| `__tests__/integration/interface.test.ts`            | 4             | Formulários sem validação HTML, erros de campo e contador por prato                                                                         |
+| `shared/errors/__tests__/messages.test.ts`           | 8             | Tradução e personalização de validação, autenticação e erros HTTP                                                                           |
+| `domains/orders/__tests__/cart-storage.test.ts`      | 7             | Persistência, restauro, isolamento de conta e armazenamento inválido/bloqueado                                                              |
+| `features/portal/__tests__/android-download.test.ts` | 5             | Configuração APK/Play Store, links inválidos e estados de disponibilidade                                                                   |
+| **Total**                                            | **50**        | Regras e integração interna dos serviços frontend                                                                                           |
 
-«Integração» no nome do último ficheiro significa integração entre módulos JavaScript com `fetch` simulado. **Não significa um teste contra a API Laravel real.** A suíte não cria utilizadores, pedidos ou registos na base de dados.
+Os testes em `integration/services.test.ts` verificam integração entre módulos JavaScript com `fetch` simulado; os de `integration/interface.test.ts` verificam HTML estático de componentes. **Não significa um teste contra a API Laravel real.** A suíte não cria utilizadores, pedidos ou registos na base de dados.
 
 ### Comandos de execução
 
@@ -634,9 +1072,21 @@ Este exemplo explica o padrão; a regra já tem cobertura nos testes existentes,
 
 Não existe uma suíte de componentes renderizados em DOM, screenshots automáticos, E2E de navegador ou relatório de percentagem de cobertura configurado. O padrão atual descobre apenas `.test.ts`; adicionar `.test.tsx` por si só não o coloca na suíte.
 
-Para introduzir testes de componentes ou E2E, configurar explicitamente o ambiente, dependências, fixtures, isolamento de dados e job do pipeline. Priorizar: erros e bloqueio de duplo envio do checkout, navegação por papel, foco de diálogos, fluxo cliente/restaurante e reconexão. Não apresentar a contagem dos 25 testes atuais como cobertura dessas interações visuais.
+Para introduzir testes de componentes ou E2E, configurar explicitamente o ambiente, dependências, fixtures, isolamento de dados e job do pipeline. Priorizar: erros e bloqueio de duplo envio do checkout, navegação por papel, foco de diálogos, fluxo cliente/restaurante e reconexão. Não apresentar a contagem dos 50 testes atuais como cobertura dessas interações visuais.
 
-## Guia de testes manuais
+### Exercício de verificação
+
+Localizar `cart-storage.test.ts`, executar apenas esse ficheiro e identificar os casos de reload, logout e JSON inválido. Depois executar a suíte completa. Ler o resultado como uma evidência de regras/serviços, não como aprovação automática da interface visual.
+
+## 17. Validar o fluxo completo no navegador
+
+**Objetivo:** comprovar a experiência real com papéis, dados, falhas e recuperação.
+
+**Abra estes ficheiros:** As telas em execução, Network/Console do navegador e os casos de teste abaixo.
+
+Siga primeiro o caminho principal: super administrador prepara restaurante; administrador prepara catálogo; cliente escolhe pratos e cria pedido; equipa atualiza preparo; cliente acompanha. Use dados identificáveis num ambiente destinado a testes.
+
+Depois execute as falhas: campo inválido, stock consumido por outra sessão, perda de rede, falta de permissão e reconexão. Um caminho de sucesso isolado não comprova recuperação.
 
 ### Preparar dados e sessões
 
@@ -659,10 +1109,10 @@ O seeder do super administrador apenas prepara essa conta, não cria automaticam
 | UI-05 | Produto sem stock   | Tentar adicionar quantidade zero/inativo                   | Ação indisponível ou mensagem sem alterar o carrinho                       |
 | UI-06 | Carrinho            | Adicionar, aumentar, diminuir e remover                    | Quantidades e totais corretos, respeitando stock e máximo de 100           |
 | UI-07 | Restaurante único   | Adicionar de A e depois tentar adicionar de B              | Mensagem e carrinho de A preservado                                        |
-| UI-08 | Carrinho local      | Navegar por hashes, entrar na conta e depois recarregar    | Navegação/login preservam itens; reload limpa conforme contrato atual      |
+| UI-08 | Carrinho local      | Navegar por hashes, entrar na conta e depois recarregar    | Navegação, login e reload preservam itens; logout limpa o carrinho         |
 | UI-09 | Checkout sem sessão | Abrir checkout com itens sem login                         | Pedido para entrar; nenhum POST de pedido                                  |
 | UI-10 | Checkout válido     | Cliente confirma morada e itens                            | Um POST correto, total do servidor, número de pedido e carrinho limpo      |
-| UI-11 | Validação           | Usar morada inválida ou data anterior ao dia atual         | Bloqueio HTML/regras locais ou erro 422; dados mantidos para corrigir      |
+| UI-11 | Validação           | Usar morada inválida ou data anterior ao dia atual         | Erro do backend, sem bloqueio HTML; dados mantidos para corrigir           |
 | UI-12 | Duplo envio         | Com rede lenta, clicar repetidamente no envio              | Botão ocupado e apenas uma chamada POST durante o processamento            |
 | UI-13 | Pedidos do cliente  | Abrir lista e detalhe                                      | Apenas pedidos próprios, itens e valores reais                             |
 | UI-14 | Cancelamento        | Cancelar pedido pendente e confirmar                       | Pedido cancelado e ausência de novas ações inválidas                       |
@@ -692,7 +1142,7 @@ Criação, edição, desativação, checkout e cancelamento alteram dados reais.
 
 Para verificar o backend, usar IDs de fixtures autorizadas e ferramentas de teste aprovadas pela equipa. Esconder um botão não comprova que a API recusará acesso direto. Um erro 403/404 não deve ser substituído por dados em cache ou por uma chamada a um endpoint menos restrito.
 
-## Testar falhas, recuperação e tempo real
+### Cenários de falha e recuperação
 
 ### Stock desatualizado
 
@@ -735,24 +1185,40 @@ Com uma conta de teste, invalidar o token pelo mecanismo disponibilizado pela eq
 
 A atualização periódica pode mascarar uma falha websocket. Para comprovar tempo real, observar evento e pedido HTTP no momento da transição, em vez de apenas aguardar que a tela mude após 30 segundos.
 
-## Diagnóstico de problemas
+### Exercício de verificação
 
-| Sintoma                                 | Verificação e resolução                                                                                                                        |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Portal sem restaurantes                 | GET `/api/v1/restaurants` devolve lista vazia? Confirmar restaurante ativo e base usada; não é necessariamente erro visual                     |
-| `table users has no column named role`  | Consultar `php artisan migrate:status` e aplicar `php artisan migrate`; schema está desatualizado                                              |
-| Seeder exige email/palavra-passe        | Confirmar nomes no `.env`, guardar ficheiro e verificar mínimo de 16 caracteres da palavra-passe; não imprimir o segredo                       |
-| `Auth guard [sanctum] is not defined`   | Confirmar dependências instaladas, executar `php artisan package:discover` e `php artisan config:clear`; Sanctum regista o guard pelo provider |
-| Classe de Sanctum/Pulse/Reverb em falta | Executar `composer install` a partir do lockfile; não remover configuração backend para esconder dependência em falta                          |
-| Wayfinder falha no build                | Confirmar Laravel arranca, dependências PHP e ambiente; executar geração manual para observar a causa                                          |
-| Asset ou manifesto Vite em falta        | Executar `npm run dev` em desenvolvimento ou `npm run build` para servir assets de produção                                                    |
-| API devolve HTML/redirect               | Confirmar URL `/api/v1`, cabeçalho Accept JSON e contrato do endpoint; não tratar HTML como Resource                                           |
-| Login em `/login` mas portal pede login | São sessões distintas: Fortify web e token API; usar `/#login` para o portal                                                                   |
-| Mudança de `VITE_*` não aparece         | Reiniciar Vite dev ou reconstruir/publicar os assets; variáveis são resolvidas pelo build                                                      |
-| Canal privado recusa autorização        | Conferir sessão API, cookie XSRF, Bearer, `/broadcasting/auth`, papel e nome do canal                                                          |
-| WS falha em HTTPS                       | Confirmar `https`/WSS, certificado válido e host/porta expostos pela infraestrutura; não desativar validação de certificados                   |
-| Inativo desaparece após desativar       | A listagem pública filtra ativos; a gestão de inativos precisa de contrato backend adicional                                                   |
-| Após publicar há erro ao carregar chunk | Confirmar build/manifesto da mesma versão e disponibilização consistente dos assets; testar reload controlado, que pode limpar carrinho        |
+Preencher um registo de testes com casos UI executados, papéis usados (sem credenciais), resultado e limitações. Não marcar um caso como aprovado apenas por estar descrito neste documento.
+
+## 18. Diagnosticar problemas pela camada certa
+
+**Objetivo:** distinguir um erro visual, de transporte, de autenticação, de ambiente ou de contrato.
+
+**Abra estes ficheiros:** Network/Console, [`resources/js/shared/api/client.ts`](resources/js/shared/api/client.ts), `.env` local sem divulgar o conteúdo e comandos de diagnóstico abaixo.
+
+1. A aplicação montou? Se não, começar por assets, build e Console.
+2. A consulta foi enviada? Se não, verificar vista, sessão, endpoint e permissões locais.
+3. Qual o estado HTTP e o corpo? Comparar com o contrato.
+4. O schema e as dependências estão atualizados? Consultar migrations e descoberta de pacotes.
+5. O problema é só websocket? Separar HTTP, autorização do canal, serviço e atualização periódica.
+
+Não corrigir uma migration pendente alterando o componente React. Não corrigir um 403 mostrando dados fictícios. Evitar apagar bases ou caches indiscriminadamente.
+
+| Sintoma                                 | Verificação e resolução                                                                                                                          |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Portal sem restaurantes                 | GET `/api/v1/restaurants` devolve lista vazia? Confirmar restaurante ativo e base usada; não é necessariamente erro visual                       |
+| `table users has no column named role`  | Consultar `php artisan migrate:status` e aplicar `php artisan migrate`; schema está desatualizado                                                |
+| Seeder exige email/palavra-passe        | Confirmar nomes no `.env`, guardar ficheiro e verificar mínimo de 16 caracteres da palavra-passe; não imprimir o segredo                         |
+| `Auth guard [sanctum] is not defined`   | Confirmar dependências instaladas, executar `php artisan package:discover` e `php artisan config:clear`; Sanctum regista o guard pelo provider   |
+| Classe de Sanctum/Pulse/Reverb em falta | Executar `composer install` a partir do lockfile; não remover configuração backend para esconder dependência em falta                            |
+| Wayfinder falha no build                | Confirmar Laravel arranca, dependências PHP e ambiente; executar geração manual para observar a causa                                            |
+| Asset ou manifesto Vite em falta        | Executar `npm run dev` em desenvolvimento ou `npm run build` para servir assets de produção                                                      |
+| API devolve HTML/redirect               | Confirmar URL `/api/v1`, cabeçalho Accept JSON e contrato do endpoint; não tratar HTML como Resource                                             |
+| Login em `/login` mas portal pede login | São sessões distintas: Fortify web e token API; usar `/#login` para o portal                                                                     |
+| Mudança de `VITE_*` não aparece         | Reiniciar Vite dev ou reconstruir/publicar os assets; variáveis são resolvidas pelo build                                                        |
+| Canal privado recusa autorização        | Conferir sessão API, cookie XSRF, Bearer, `/broadcasting/auth`, papel e nome do canal                                                            |
+| WS falha em HTTPS                       | Confirmar `https`/WSS, certificado válido e host/porta expostos pela infraestrutura; não desativar validação de certificados                     |
+| Inativo desaparece após desativar       | A listagem pública filtra ativos; a gestão de inativos precisa de contrato backend adicional                                                     |
+| Após publicar há erro ao carregar chunk | Confirmar build/manifesto da mesma versão e disponibilização consistente dos assets; testar reload controlado e verificar o restauro do carrinho |
 
 Sequência de diagnóstico sem expor segredos:
 
@@ -772,7 +1238,19 @@ php artisan config:clear
 
 Esses comandos atualizam caches do ambiente; não substituem migrations, não criam automaticamente o super administrador e não exigem editar `config/auth.php` para adicionar manualmente o guard do Sanctum. Não usar comandos destrutivos de base como solução genérica.
 
-## Desenvolvimento e entrega
+### Exercício de verificação
+
+Escolher um sintoma da tabela e indicar a primeira evidência a recolher. Não copiar tokens, cabeçalhos de autenticação, cookies ou palavras-passe para relatórios de erro.
+
+## 19. Implementar uma alteração e preparar a entrega
+
+**Objetivo:** aplicar o percurso aprendido a uma tarefa nova sem misturar responsabilidades.
+
+**Abra estes ficheiros:** [`package.json`](package.json), [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), serviços e tipos do domínio alterado.
+
+Antes de editar, identificar o contrato e a camada afetada. Depois ligar a tela aos serviços existentes, tratar estados, testar o comportamento e atualizar esta documentação. Uma funcionalidade sem API correspondente deve ser identificada como pendente, não simulada como concluída.
+
+O pipeline automatiza verificações; a publicação efetiva continua a depender do processo do ambiente e da autorização aplicável. Gerar assets localmente não publica a aplicação.
 
 ### Acrescentar uma funcionalidade
 
@@ -844,4 +1322,56 @@ Evidência sanitizada (se aplicável):
 Limitações / casos não executados:
 ```
 
-As verificações automatizadas e de navegação já realizadas estão registadas em «Verificação executada». O fluxo autenticado completo, transações de stock concorrentes, acessibilidade e reconexão real continuam a exigir execução do roteiro com dados e serviços apropriados; a documentação não converte esses casos em testes já aprovados.
+As verificações automatizadas e de navegação já realizadas estão registadas em «Evidência de verificação». O fluxo autenticado completo, transações de stock concorrentes, acessibilidade e reconexão real continuam a exigir execução do roteiro com dados e serviços apropriados; a documentação não converte esses casos em testes já aprovados.
+
+### Exercício de verificação
+
+Usar a checklist abaixo para uma alteração pequena. Explicar no relatório o que mudou, porquê, quais verificações passaram e o que não foi executado. Não afirmar que houve teste autenticado, instalação Android ou reconexão real sem essa evidência.
+
+## Limitações e funcionalidades pendentes
+
+1. A listagem de produtos exposta é pública e filtra ativos. Não há endpoint de catálogo de gestão com produtos inativos. A interface indica essa limitação; um produto desativado na sessão pode continuar a ser editado pela resposta já recebida, mas não se promete recuperá-lo da lista após recarregar.
+2. O índice de restaurantes é público e recebe `$request->user()`, mas a rota não aplica `auth:sanctum`. Um Bearer por si só pode não ativar o contexto de utilizador nesse endpoint, condicionando a listagem de inativos/escopo administrativo. O frontend envia o token, respeita as respostas e nunca contorna a autorização. Este ponto deve ser confirmado pela equipa backend; não foi corrigido em PHP.
+3. Não existem contratos de pagamento/SDK de cartão, rotas de entregador, GPS, evento `delivery.location.updated`, auditoria de operador ou reprocessamento de entregas.
+4. Não existem sete estados de pedido, cursor pagination, endpoint de métricas globais ou suporte de idempotência. A interface usa os quatro estados e a paginação realmente disponíveis.
+5. Os Resources de produto não incluem fotografias, descrição comercial ou prato do dia. O portal usa elementos visuais neutros, sem inventar imagens ou publicidade provenientes do servidor.
+6. Definições e segurança web mantêm os componentes e contratos existentes; os endpoints de API entregues não expõem personalização global de marca/temas.
+
+## Evidência de verificação
+
+- `npm run types:check`: aprovado.
+- `npm run check`: formatação e lint aprovados.
+- `npm run test:frontend`: 50 testes aprovados em sete ficheiros, cobrindo payload, stock, restaurante único, quantidades, valores monetários, permissões, transições, canais, eventos, autenticação HTTP e erros 422/401.
+- `npm run build`: aprovado, incluindo geração Wayfinder e assets de produção. O aviso da dependência opcional `fontaine` não impede o build.
+- Inspeção no navegador: portal abre em `http://127.0.0.1:8000/`, API retorna lista sem restaurantes publicados, navegação para carrinho vazio e formulário de login funciona.
+- Não foram criados utilizadores, restaurantes ou pedidos na base durante a verificação. O fluxo autenticado completo e a entrega efetiva de eventos Reverb precisam de contas/dados e serviços disponíveis; os testes de contrato não substituem essa validação integrada.
+- As dependências locais em `vendor` foram sincronizadas com o `composer.lock` existente para conseguir gerar as rotas e o build; os ficheiros Composer permanecem intactos.
+- O workflow `.github/workflows/deploy.yml` mantém o build de produção e passa também a executar `npm run test:frontend` antes do build.
+- A comparação SHA dos ficheiros versionados de `app`, `routes`, `database`, `config`, `bootstrap` e Composer não encontrou alterações ao backend.
+
+### Roteiro para validação integrada pela equipa
+
+1. Usar um super administrador existente, criar restaurante e administrador inicial na área Restaurantes.
+2. Entrar com o administrador do restaurante, criar categoria ativa e produto com stock/preço; criar membro da equipa se necessário.
+3. Entrar como cliente, escolher o restaurante, adicionar produtos e confirmar a morada no checkout. Confirmar o total devolvido e o detalhe em Pedidos.
+4. Noutra sessão, usar a equipa do restaurante para passar de Pendente a Em preparação e depois Concluído; confirmar atualização no cliente.
+5. Simular stock desatualizado com duas sessões: após consumir o stock numa, tentar finalizar na outra e confirmar mensagem do servidor sem perder o carrinho.
+6. Criar um pedido pendente e cancelar como cliente; confirmar estado e indisponibilidade de ações posteriores.
+7. Interromper a ligação, observar erro, consultar pedidos e só repetir checkout após verificar se houve criação. Com Reverb ativo, testar interrupção e recuperação do websocket.
+
+Esses passos criam e alteram dados reais no ambiente utilizado. Executá-los numa base destinada a testes, com as contas fornecidas pela equipa.
+
+## Histórico da simplificação
+
+Foram removidos 15 ficheiros sem utilização ou substituídos por uma composição direta:
+
+- Layout de cabeçalho alternativo, componente de cabeçalho correspondente e layouts de autenticação alternativos (`auth-card` e `auth-split`).
+- Componentes UI sem consumidores: badge, collapsible, icon, navigation-menu, placeholder-pattern, select, toggle e toggle-group.
+- `nav-footer`, juntamente com os links de exemplo para o repositório e a documentação do starter Laravel.
+- Wrappers `app-shell` e `app-content`; a composição com `SidebarProvider` e `SidebarInset` passou diretamente para o layout lateral. O tipo `AppVariant` deixou de ser necessário.
+
+As cinco dependências diretas usadas apenas pelos componentes removidos (`@radix-ui/react-collapsible`, `react-navigation-menu`, `react-select`, `react-toggle` e `react-toggle-group`) foram retiradas de `package.json` e do lockfile. As bibliotecas ainda utilizadas pelas telas de autenticação, segurança, perfil e componentes acessíveis foram mantidas.
+
+As telas de carrinho, checkout, autenticação API, dashboard, pedidos e gestão são agora carregadas com `React.lazy` e `Suspense`. Os layouts de autenticação e definições web também são carregados sob demanda. O módulo Echo/Pusher só é solicitado quando existe uma sessão API autenticada. Assim, abrir o portal público não exige descarregar antecipadamente todas as áreas de gestão e a infraestrutura websocket.
+
+A limpeza preserva as páginas referenciadas pelas rotas web/Fortify, os testes, os ficheiros gerados pelo Wayfinder e os contratos da API. Nenhum ficheiro do backend foi alterado. A análise de imports deixou de encontrar ficheiros TS/TSX sem utilização entre os módulos mantidos, considerando as entradas Inertia, declarações e testes.

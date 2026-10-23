@@ -1,14 +1,7 @@
+import { useCart } from '@/domains/orders/hooks/use-cart';
 import { useView } from './use-view';
 import { Head } from '@inertiajs/react';
-import {
-    lazy,
-    Suspense,
-    useCallback,
-    useEffect,
-    useReducer,
-    useRef,
-    useState,
-} from 'react';
+import { lazy, Suspense, useCallback, useState } from 'react';
 import {
     Bike,
     ClipboardList,
@@ -70,19 +63,8 @@ function Shell({ initial }: { initial: string }) {
     const changed = useCallback(() => setRevision((value) => value + 1), []);
     const [menu, setMenu] = useState(false);
     const [notice, setNotice] = useState('');
-    const [cart, dispatch] = useReducer(cartReducer, { items: [], error: '' });
+    const [cart, dispatch] = useCart(user, loading);
     const logOut = useMutation();
-    const previousUser = useRef<number | null>(null);
-    useEffect(() => {
-        if (
-            previousUser.current !== null &&
-            previousUser.current !== (user?.id ?? null)
-        ) {
-            dispatch({ type: 'clear' });
-            setNotice('');
-        }
-        previousUser.current = user?.id ?? null;
-    }, [user?.id]);
     const count = cart.items.reduce((sum, item) => sum + item.quantity, 0);
     const commerce =
         view === 'portal' ||
@@ -111,6 +93,7 @@ function Shell({ initial }: { initial: string }) {
     if (view === 'portal' || /^restaurant\/\d+$/.test(view))
         content = (
             <Portal
+                items={cart.items}
                 restaurantId={
                     view.startsWith('restaurant/')
                         ? Number(view.split('/')[1])

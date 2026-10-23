@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
 import {
     AlertCircle,
@@ -58,7 +58,7 @@ export function Feedback({
     success?: boolean;
 }) {
     return message ? (
-        <p
+        <div
             role={success ? 'status' : 'alert'}
             className={`mb-5 flex items-start gap-2 rounded-xl border p-4 text-sm leading-6 ${success ? 'border-emerald-100 bg-emerald-50 text-emerald-800' : 'border-red-100 bg-red-50 text-red-800'}`}
         >
@@ -67,8 +67,15 @@ export function Feedback({
                 size={16}
                 aria-hidden="true"
             />
-            {message}
-        </p>
+            <div>
+                {!success && (
+                    <p className="mb-1 font-semibold">
+                        Não foi possível continuar
+                    </p>
+                )}
+                <p>{message}</p>
+            </div>
+        </div>
     ) : null;
 }
 export function LoadState({
@@ -155,26 +162,32 @@ export function SearchBox({
     placeholder?: string;
 }) {
     const [value, setValue] = useState('');
+    const id = useId();
+    useEffect(() => {
+        const timeout = window.setTimeout(() => onSearch(value.trim()), 300);
+        return () => window.clearTimeout(timeout);
+    }, [value, onSearch]);
     return (
         <form
+            noValidate
+            role="search"
             className="mb-5 flex max-w-lg gap-2"
             onSubmit={(event) => {
                 event.preventDefault();
                 onSearch(value.trim());
             }}
         >
-            <label htmlFor="resource-search" className="sr-only">
+            <label htmlFor={id} className="sr-only">
                 Pesquisar
             </label>
             <input
-                id="resource-search"
-                maxLength={255}
+                id={id}
+                type="search"
                 value={value}
                 onChange={(event) => setValue(event.target.value)}
                 placeholder={placeholder}
                 className={inputClass}
             />
-            <button className={secondaryClass}>Pesquisar</button>
             {value && (
                 <button
                     type="button"
@@ -204,11 +217,6 @@ export interface Field {
         | 'textarea'
         | 'select';
     required?: boolean;
-    min?: number;
-    max?: number;
-    step?: string;
-    minLength?: number;
-    maxLength?: number;
     options?: { value: string | number; label: string }[];
     hint?: string;
     defaultValue?: string | number;
@@ -228,7 +236,7 @@ export function Fields({
                 const props = {
                     id: `field-${field.name}`,
                     name: field.name,
-                    required: field.required,
+                    'aria-required': field.required,
                     defaultValue:
                         initial[field.name] ?? field.defaultValue ?? '',
                     'aria-invalid': !!errors[field.name],
@@ -265,7 +273,6 @@ export function Fields({
                         ) : field.type === 'textarea' ? (
                             <textarea
                                 {...props}
-                                maxLength={field.maxLength}
                                 rows={3}
                                 className={`${inputClass} h-auto py-3`}
                             />
@@ -273,11 +280,6 @@ export function Fields({
                             <input
                                 {...props}
                                 type={field.type ?? 'text'}
-                                min={field.min}
-                                max={field.max}
-                                step={field.step}
-                                minLength={field.minLength}
-                                maxLength={field.maxLength}
                                 autoComplete={
                                     field.type === 'password'
                                         ? 'new-password'
@@ -333,9 +335,7 @@ export function ApiForm({
         const data: Record<string, unknown> = {};
         for (const field of fields) {
             const value = entries.get(field.name);
-            if (typeof value === 'string' && (value !== '' || field.required))
-                data[field.name] =
-                    field.type === 'number' ? Number(value) : value;
+            if (typeof value === 'string') data[field.name] = value;
         }
         lock.current = true;
         setBusy(true);
@@ -358,6 +358,7 @@ export function ApiForm({
     }
     return (
         <form
+            noValidate
             onSubmit={(event) => void send(event)}
             aria-busy={busy}
             className="space-y-5"

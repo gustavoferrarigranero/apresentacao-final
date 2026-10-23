@@ -115,6 +115,7 @@ export default function Checkout({
             ) : (
                 <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
                     <form
+                        noValidate
                         onSubmit={(event) => void submit(event)}
                         aria-busy={busy}
                         className="rounded-2xl border bg-white p-6"
@@ -128,7 +129,6 @@ export default function Checkout({
                                         label: 'Morada de entrega',
                                         type: 'textarea',
                                         required: true,
-                                        maxLength: 500,
                                     },
                                     {
                                         name: 'delivery_date',

@@ -28,8 +28,6 @@ export function checkoutPayload(
 ): CheckoutPayload {
     if (!items.length || items.length > 50)
         throw new Error('Adicione entre 1 e 50 produtos ao carrinho.');
-    if (!address.trim() || address.trim().length > 500)
-        throw new Error('Indique uma morada com até 500 caracteres.');
     const restaurantId = items[0].product.restaurant_id;
     const ids = new Set<number>();
     for (const item of items) {

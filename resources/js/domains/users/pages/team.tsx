@@ -32,29 +32,24 @@ export function TeamManagement() {
                             name: 'name',
                             label: 'Nome',
                             required: true,
-                            minLength: 2,
-                            maxLength: 255,
                         },
                         {
                             name: 'email',
                             label: 'Email',
                             type: 'email',
                             required: true,
-                            maxLength: 255,
                         },
                         {
                             name: 'password',
                             label: 'Palavra-passe',
                             type: 'password',
                             required: true,
-                            minLength: 12,
                         },
                         {
                             name: 'password_confirmation',
                             label: 'Confirmar palavra-passe',
                             type: 'password',
                             required: true,
-                            minLength: 12,
                         },
                     ]}
                     submit={(data) => userApi.createMember(data)}

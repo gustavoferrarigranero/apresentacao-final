@@ -114,7 +114,6 @@ export function CategoriesManagement() {
                                 name: 'name',
                                 label: 'Nome',
                                 required: true,
-                                minLength: 3,
                             },
                             stateField,
                         ]}

@@ -9,7 +9,8 @@ export function decimalToCents(value: string | number) {
     return cents;
 }
 export const money = (cents: number) =>
-    new Intl.NumberFormat('pt-PT', {
+    new Intl.NumberFormat('pt-AO', {
         style: 'currency',
-        currency: 'EUR',
+        currency: 'AOA',
+        currencyDisplay: 'code',
     }).format(cents / 100);

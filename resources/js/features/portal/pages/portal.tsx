@@ -1,3 +1,6 @@
+import AndroidDownload from '../components/android-download';
+import AddDishButton from '../components/add-dish-button';
+import type { CartItem } from '@/domains/orders/types';
 import { restaurantEndpoints } from '@/domains/restaurants/services';
 import { productEndpoints } from '@/domains/products/services';
 import { useState } from 'react';
@@ -5,7 +8,6 @@ import {
     ArrowLeft,
     ArrowRight,
     MapPin,
-    Plus,
     ShoppingBag,
     UtensilsCrossed,
 } from 'lucide-react';
@@ -20,14 +22,15 @@ import {
     Pagination,
     LoadState,
     Empty,
-    buttonClass,
     secondaryClass,
 } from '@/shared/components/api-ui';
 export default function Portal({
     restaurantId,
     onAdd,
+    items,
 }: {
     restaurantId?: number;
+    items: CartItem[];
     onAdd: (product: Product) => void;
 }) {
     const [search, setSearch] = useState('');
@@ -71,6 +74,7 @@ export default function Portal({
                         <ShoppingBag size={17} />O meu carrinho
                     </a>
                 </section>
+                <AndroidDownload />
                 <Title
                     title="Escolha o restaurante"
                     description="Catálogo publicado pelos restaurantes na plataforma."
@@ -175,21 +179,18 @@ export default function Portal({
                                                         ),
                                                     )}
                                                 </strong>
-                                                <button
-                                                    className={`${buttonClass} min-h-9 rounded-full text-xs`}
-                                                    disabled={
-                                                        product.quantity <= 0 ||
-                                                        product.status !==
-                                                            'active'
+                                                <AddDishButton
+                                                    product={product}
+                                                    quantity={
+                                                        items.find(
+                                                            (item) =>
+                                                                item.product
+                                                                    .id ===
+                                                                product.id,
+                                                        )?.quantity ?? 0
                                                     }
-                                                    onClick={() =>
-                                                        onAdd(product)
-                                                    }
-                                                    aria-label={`Adicionar ${product.name}`}
-                                                >
-                                                    <Plus size={15} />
-                                                    Adicionar
-                                                </button>
+                                                    onAdd={onAdd}
+                                                />
                                             </div>
                                         </div>
                                     </article>
