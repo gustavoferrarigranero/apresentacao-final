@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Guarda jobs pendentes para workers que usam a fila de base de dados.
         Schema::create('jobs', function (Blueprint $table) {
             $table->id();
             $table->string('queue')->index();
@@ -21,6 +22,7 @@ return new class extends Migration
             $table->unsignedInteger('created_at');
         });
 
+        // Permite acompanhar e controlar grupos de jobs executados em lote.
         Schema::create('job_batches', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->string('name');
@@ -34,6 +36,7 @@ return new class extends Migration
             $table->integer('finished_at')->nullable();
         });
 
+        // Mantém o payload e a exceção dos jobs que esgotaram as tentativas.
         Schema::create('failed_jobs', function (Blueprint $table) {
             $table->id();
             $table->string('uuid')->unique();
