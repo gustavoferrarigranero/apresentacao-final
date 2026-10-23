@@ -1,0 +1,17 @@
+docPath: docs-bd
+er:
+  format: mermaid
+  distance: 2
+format:
+  adjust: true
+exclude:
+  - knex_migrations
+  - knex_migrations_lock
+  - _prisma_migrations
+  - SequelizeMeta
+  - django_migrations
+  - alembic_version
+  - sqlite_sequence
+  - migrations
+name: database.sqlite
+desc: Documentação da base de dados do projeto

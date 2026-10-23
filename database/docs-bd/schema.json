@@ -1,0 +1,1639 @@
+{
+  "name": "database.sqlite",
+  "desc": "Documentação da base de dados do projeto",
+  "tables": [
+    {
+      "name": "password_reset_tokens",
+      "type": "table",
+      "columns": [
+        {
+          "name": "email",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "token",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_password_reset_tokens_1",
+          "def": "PRIMARY KEY (email)",
+          "table": "password_reset_tokens",
+          "columns": [
+            "email"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "email",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (email)",
+          "table": "password_reset_tokens",
+          "columns": [
+            "email"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_password_reset_tokens_1",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (email)",
+          "table": "password_reset_tokens",
+          "columns": [
+            "email"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"password_reset_tokens\" (\"email\" varchar not null, \"token\" varchar not null, \"created_at\" datetime, primary key (\"email\"))"
+    },
+    {
+      "name": "sessions",
+      "type": "table",
+      "columns": [
+        {
+          "name": "id",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "nullable": true
+        },
+        {
+          "name": "ip_address",
+          "type": "varchar",
+          "nullable": true
+        },
+        {
+          "name": "user_agent",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "payload",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "last_activity",
+          "type": "INTEGER",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "sessions_last_activity_index",
+          "def": "CREATE INDEX \"sessions_last_activity_index\" on \"sessions\" (\"last_activity\")",
+          "table": "sessions",
+          "columns": [
+            "last_activity"
+          ]
+        },
+        {
+          "name": "sessions_user_id_index",
+          "def": "CREATE INDEX \"sessions_user_id_index\" on \"sessions\" (\"user_id\")",
+          "table": "sessions",
+          "columns": [
+            "user_id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_sessions_1",
+          "def": "PRIMARY KEY (id)",
+          "table": "sessions",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "sessions",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_sessions_1",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "sessions",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"sessions\" (\"id\" varchar not null, \"user_id\" integer, \"ip_address\" varchar, \"user_agent\" text, \"payload\" text not null, \"last_activity\" integer not null, primary key (\"id\"))"
+    },
+    {
+      "name": "cache",
+      "type": "table",
+      "columns": [
+        {
+          "name": "key",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "value",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "expiration",
+          "type": "INTEGER",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "cache_expiration_index",
+          "def": "CREATE INDEX \"cache_expiration_index\" on \"cache\" (\"expiration\")",
+          "table": "cache",
+          "columns": [
+            "expiration"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_cache_1",
+          "def": "PRIMARY KEY (key)",
+          "table": "cache",
+          "columns": [
+            "key"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "key",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (key)",
+          "table": "cache",
+          "columns": [
+            "key"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_cache_1",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (key)",
+          "table": "cache",
+          "columns": [
+            "key"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"cache\" (\"key\" varchar not null, \"value\" text not null, \"expiration\" integer not null, primary key (\"key\"))"
+    },
+    {
+      "name": "cache_locks",
+      "type": "table",
+      "columns": [
+        {
+          "name": "key",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "owner",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "expiration",
+          "type": "INTEGER",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "cache_locks_expiration_index",
+          "def": "CREATE INDEX \"cache_locks_expiration_index\" on \"cache_locks\" (\"expiration\")",
+          "table": "cache_locks",
+          "columns": [
+            "expiration"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_cache_locks_1",
+          "def": "PRIMARY KEY (key)",
+          "table": "cache_locks",
+          "columns": [
+            "key"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "key",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (key)",
+          "table": "cache_locks",
+          "columns": [
+            "key"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_cache_locks_1",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (key)",
+          "table": "cache_locks",
+          "columns": [
+            "key"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"cache_locks\" (\"key\" varchar not null, \"owner\" varchar not null, \"expiration\" integer not null, primary key (\"key\"))"
+    },
+    {
+      "name": "jobs",
+      "type": "table",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "queue",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "attempts",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "reserved_at",
+          "type": "INTEGER",
+          "nullable": true
+        },
+        {
+          "name": "available_at",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "jobs_queue_index",
+          "def": "CREATE INDEX \"jobs_queue_index\" on \"jobs\" (\"queue\")",
+          "table": "jobs",
+          "columns": [
+            "queue"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "jobs",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"jobs\" (\"id\" integer primary key autoincrement not null, \"queue\" varchar not null, \"payload\" text not null, \"attempts\" integer not null, \"reserved_at\" integer, \"available_at\" integer not null, \"created_at\" integer not null)"
+    },
+    {
+      "name": "job_batches",
+      "type": "table",
+      "columns": [
+        {
+          "name": "id",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "total_jobs",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "pending_jobs",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "failed_jobs",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "failed_job_ids",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "options",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "cancelled_at",
+          "type": "INTEGER",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "finished_at",
+          "type": "INTEGER",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_job_batches_1",
+          "def": "PRIMARY KEY (id)",
+          "table": "job_batches",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "job_batches",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_job_batches_1",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "job_batches",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"job_batches\" (\"id\" varchar not null, \"name\" varchar not null, \"total_jobs\" integer not null, \"pending_jobs\" integer not null, \"failed_jobs\" integer not null, \"failed_job_ids\" text not null, \"options\" text, \"cancelled_at\" integer, \"created_at\" integer not null, \"finished_at\" integer, primary key (\"id\"))"
+    },
+    {
+      "name": "failed_jobs",
+      "type": "table",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "uuid",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "connection",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "queue",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "exception",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "failed_at",
+          "type": "datetime",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "failed_jobs_uuid_unique",
+          "def": "CREATE UNIQUE INDEX \"failed_jobs_uuid_unique\" on \"failed_jobs\" (\"uuid\")",
+          "table": "failed_jobs",
+          "columns": [
+            "uuid"
+          ]
+        },
+        {
+          "name": "failed_jobs_connection_queue_failed_at_index",
+          "def": "CREATE INDEX \"failed_jobs_connection_queue_failed_at_index\" on \"failed_jobs\" (\"connection\", \"queue\", \"failed_at\")",
+          "table": "failed_jobs",
+          "columns": [
+            "connection",
+            "queue",
+            "failed_at"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "failed_jobs",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"failed_jobs\" (\"id\" integer primary key autoincrement not null, \"uuid\" varchar not null, \"connection\" varchar not null, \"queue\" varchar not null, \"payload\" text not null, \"exception\" text not null, \"failed_at\" datetime not null default CURRENT_TIMESTAMP)"
+    },
+    {
+      "name": "passkeys",
+      "type": "table",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "credential_id",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "credential",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "last_used_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "passkeys_credential_id_unique",
+          "def": "CREATE UNIQUE INDEX \"passkeys_credential_id_unique\" on \"passkeys\" (\"credential_id\")",
+          "table": "passkeys",
+          "columns": [
+            "credential_id"
+          ]
+        },
+        {
+          "name": "passkeys_user_id_index",
+          "def": "CREATE INDEX \"passkeys_user_id_index\" on \"passkeys\" (\"user_id\")",
+          "table": "passkeys",
+          "columns": [
+            "user_id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "passkeys",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "- (Foreign key ID: 0)",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (user_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE CASCADE MATCH NONE",
+          "table": "passkeys",
+          "referenced_table": "users",
+          "columns": [
+            "user_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"passkeys\" (\"id\" integer primary key autoincrement not null, \"user_id\" integer not null, \"name\" varchar not null, \"credential_id\" varchar not null, \"credential\" text not null, \"last_used_at\" datetime, \"created_at\" datetime, \"updated_at\" datetime, foreign key(\"user_id\") references \"users\"(\"id\") on delete cascade)"
+    },
+    {
+      "name": "restaurants",
+      "type": "table",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "address",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "phone_number",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "nif",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "varchar",
+          "nullable": false,
+          "default": "'active'"
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "restaurants_nif_unique",
+          "def": "CREATE UNIQUE INDEX \"restaurants_nif_unique\" on \"restaurants\" (\"nif\")",
+          "table": "restaurants",
+          "columns": [
+            "nif"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "restaurants",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "-",
+          "type": "CHECK",
+          "def": "check (\"status\" in ('active', 'inactive'))",
+          "table": "restaurants",
+          "columns": [
+            "status"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"restaurants\" (\"id\" integer primary key autoincrement not null, \"name\" varchar not null, \"address\" varchar not null, \"phone_number\" varchar not null, \"nif\" varchar not null, \"status\" varchar check (\"status\" in ('active', 'inactive')) not null default 'active', \"created_at\" datetime, \"updated_at\" datetime)"
+    },
+    {
+      "name": "users",
+      "type": "table",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "email",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "email_verified_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "password",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "remember_token",
+          "type": "varchar",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "two_factor_secret",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "two_factor_recovery_codes",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "two_factor_confirmed_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "restaurant_id",
+          "type": "INTEGER",
+          "nullable": true
+        },
+        {
+          "name": "address",
+          "type": "varchar",
+          "nullable": true
+        },
+        {
+          "name": "contact",
+          "type": "varchar",
+          "nullable": true
+        },
+        {
+          "name": "nif",
+          "type": "varchar",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "varchar",
+          "nullable": false,
+          "default": "'active'"
+        },
+        {
+          "name": "role",
+          "type": "varchar",
+          "nullable": false,
+          "default": "'customer'"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "users_role_index",
+          "def": "CREATE INDEX \"users_role_index\" on \"users\" (\"role\")",
+          "table": "users",
+          "columns": [
+            "role"
+          ]
+        },
+        {
+          "name": "users_email_unique",
+          "def": "CREATE UNIQUE INDEX \"users_email_unique\" on \"users\" (\"email\")",
+          "table": "users",
+          "columns": [
+            "email"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "users",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "- (Foreign key ID: 0)",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (restaurant_id) REFERENCES restaurants (id) ON UPDATE NO ACTION ON DELETE NO ACTION MATCH NONE",
+          "table": "users",
+          "referenced_table": "restaurants",
+          "columns": [
+            "restaurant_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "-",
+          "type": "CHECK",
+          "def": "check (\"status\" in ('active', 'inactive'))",
+          "table": "users",
+          "columns": [
+            "status"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"users\" (\"id\" integer primary key autoincrement not null, \"name\" varchar not null, \"email\" varchar not null, \"email_verified_at\" datetime, \"password\" varchar not null, \"remember_token\" varchar, \"created_at\" datetime, \"updated_at\" datetime, \"two_factor_secret\" text, \"two_factor_recovery_codes\" text, \"two_factor_confirmed_at\" datetime, \"restaurant_id\" integer, \"address\" varchar, \"contact\" varchar, \"nif\" varchar, \"status\" varchar check (\"status\" in ('active', 'inactive')) not null default 'active', \"role\" varchar not null default 'customer', foreign key(\"restaurant_id\") references \"restaurants\"(\"id\"))"
+    },
+    {
+      "name": "order_itens",
+      "type": "table",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "product_id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "value",
+          "type": "numeric",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "order_id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "quantity",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "'1'"
+        }
+      ],
+      "constraints": [
+        {
+          "name": "id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "order_itens",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "- (Foreign key ID: 0)",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (order_id) REFERENCES orders (id) ON UPDATE NO ACTION ON DELETE NO ACTION MATCH NONE",
+          "table": "order_itens",
+          "referenced_table": "orders",
+          "columns": [
+            "order_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "- (Foreign key ID: 1)",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (product_id) REFERENCES produts (id) ON UPDATE NO ACTION ON DELETE NO ACTION MATCH NONE",
+          "table": "order_itens",
+          "referenced_table": "produts",
+          "columns": [
+            "product_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"order_itens\" (\"id\" integer primary key autoincrement not null, \"product_id\" integer not null, \"value\" numeric not null, \"created_at\" datetime, \"updated_at\" datetime, \"order_id\" integer not null, \"quantity\" integer not null default '1', foreign key(\"product_id\") references \"produts\"(\"id\") on delete no action on update no action, foreign key(\"order_id\") references \"orders\"(\"id\"))"
+    },
+    {
+      "name": "personal_access_tokens",
+      "type": "table",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "tokenable_type",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "tokenable_id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "token",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "abilities",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "last_used_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "expires_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "personal_access_tokens_expires_at_index",
+          "def": "CREATE INDEX \"personal_access_tokens_expires_at_index\" on \"personal_access_tokens\" (\"expires_at\")",
+          "table": "personal_access_tokens",
+          "columns": [
+            "expires_at"
+          ]
+        },
+        {
+          "name": "personal_access_tokens_token_unique",
+          "def": "CREATE UNIQUE INDEX \"personal_access_tokens_token_unique\" on \"personal_access_tokens\" (\"token\")",
+          "table": "personal_access_tokens",
+          "columns": [
+            "token"
+          ]
+        },
+        {
+          "name": "personal_access_tokens_tokenable_type_tokenable_id_index",
+          "def": "CREATE INDEX \"personal_access_tokens_tokenable_type_tokenable_id_index\" on \"personal_access_tokens\" (\"tokenable_type\", \"tokenable_id\")",
+          "table": "personal_access_tokens",
+          "columns": [
+            "tokenable_type",
+            "tokenable_id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "personal_access_tokens",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"personal_access_tokens\" (\"id\" integer primary key autoincrement not null, \"tokenable_type\" varchar not null, \"tokenable_id\" integer not null, \"name\" text not null, \"token\" varchar not null, \"abilities\" text, \"last_used_at\" datetime, \"expires_at\" datetime, \"created_at\" datetime, \"updated_at\" datetime)"
+    },
+    {
+      "name": "categories",
+      "type": "table",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "varchar",
+          "nullable": false,
+          "default": "'active'"
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "restaurant_id",
+          "type": "INTEGER",
+          "nullable": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "categories",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "- (Foreign key ID: 0)",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (restaurant_id) REFERENCES restaurants (id) ON UPDATE NO ACTION ON DELETE RESTRICT MATCH NONE",
+          "table": "categories",
+          "referenced_table": "restaurants",
+          "columns": [
+            "restaurant_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"categories\" (\"id\" integer primary key autoincrement not null, \"name\" varchar not null, \"status\" varchar not null default ('active'), \"created_at\" datetime, \"updated_at\" datetime, \"restaurant_id\" integer, foreign key(\"restaurant_id\") references \"restaurants\"(\"id\") on delete restrict)"
+    },
+    {
+      "name": "produts",
+      "type": "table",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "price",
+          "type": "numeric",
+          "nullable": false
+        },
+        {
+          "name": "quantity",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "category_id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "varchar",
+          "nullable": false,
+          "default": "'active'"
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "restaurant_id",
+          "type": "INTEGER",
+          "nullable": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "produts",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "- (Foreign key ID: 0)",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (restaurant_id) REFERENCES restaurants (id) ON UPDATE NO ACTION ON DELETE RESTRICT MATCH NONE",
+          "table": "produts",
+          "referenced_table": "restaurants",
+          "columns": [
+            "restaurant_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "- (Foreign key ID: 1)",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (category_id) REFERENCES categories (id) ON UPDATE NO ACTION ON DELETE NO ACTION MATCH NONE",
+          "table": "produts",
+          "referenced_table": "categories",
+          "columns": [
+            "category_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"produts\" (\"id\" integer primary key autoincrement not null, \"name\" varchar not null, \"type\" varchar not null, \"price\" numeric not null, \"quantity\" integer not null, \"category_id\" integer not null, \"status\" varchar not null default ('active'), \"created_at\" datetime, \"updated_at\" datetime, \"restaurant_id\" integer, foreign key(\"category_id\") references \"categories\"(\"id\") on delete no action on update no action, foreign key(\"restaurant_id\") references \"restaurants\"(\"id\") on delete restrict)"
+    },
+    {
+      "name": "orders",
+      "type": "table",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "payment_status",
+          "type": "varchar",
+          "nullable": false,
+          "default": "'pending'"
+        },
+        {
+          "name": "payment_value",
+          "type": "numeric",
+          "nullable": false,
+          "default": "'0'"
+        },
+        {
+          "name": "customer_id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "address",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "delivery_date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "restaurant_id",
+          "type": "INTEGER",
+          "nullable": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "orders",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "- (Foreign key ID: 0)",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (restaurant_id) REFERENCES restaurants (id) ON UPDATE NO ACTION ON DELETE RESTRICT MATCH NONE",
+          "table": "orders",
+          "referenced_table": "restaurants",
+          "columns": [
+            "restaurant_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "- (Foreign key ID: 1)",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (customer_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE NO ACTION MATCH NONE",
+          "table": "orders",
+          "referenced_table": "users",
+          "columns": [
+            "customer_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "- (Foreign key ID: 2)",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (user_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE NO ACTION MATCH NONE",
+          "table": "orders",
+          "referenced_table": "users",
+          "columns": [
+            "user_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"orders\" (\"id\" integer primary key autoincrement not null, \"payment_status\" varchar not null default ('pending'), \"payment_value\" numeric not null default ('0'), \"customer_id\" integer not null, \"user_id\" integer not null, \"address\" varchar not null, \"delivery_date\" date not null, \"created_at\" datetime, \"updated_at\" datetime, \"restaurant_id\" integer, foreign key(\"user_id\") references \"users\"(\"id\") on delete no action on update no action, foreign key(\"customer_id\") references \"users\"(\"id\") on delete no action on update no action, foreign key(\"restaurant_id\") references \"restaurants\"(\"id\") on delete restrict)"
+    },
+    {
+      "name": "pulse_values",
+      "type": "table",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "timestamp",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "key",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "key_hash",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "value",
+          "type": "TEXT",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "pulse_values_type_key_hash_unique",
+          "def": "CREATE UNIQUE INDEX \"pulse_values_type_key_hash_unique\" on \"pulse_values\" (\"type\", \"key_hash\")",
+          "table": "pulse_values",
+          "columns": [
+            "type",
+            "key_hash"
+          ]
+        },
+        {
+          "name": "pulse_values_type_index",
+          "def": "CREATE INDEX \"pulse_values_type_index\" on \"pulse_values\" (\"type\")",
+          "table": "pulse_values",
+          "columns": [
+            "type"
+          ]
+        },
+        {
+          "name": "pulse_values_timestamp_index",
+          "def": "CREATE INDEX \"pulse_values_timestamp_index\" on \"pulse_values\" (\"timestamp\")",
+          "table": "pulse_values",
+          "columns": [
+            "timestamp"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "pulse_values",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"pulse_values\" (\"id\" integer primary key autoincrement not null, \"timestamp\" integer not null, \"type\" varchar not null, \"key\" text not null, \"key_hash\" varchar not null, \"value\" text not null)"
+    },
+    {
+      "name": "pulse_entries",
+      "type": "table",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "timestamp",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "key",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "key_hash",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "value",
+          "type": "INTEGER",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "pulse_entries_timestamp_type_key_hash_value_index",
+          "def": "CREATE INDEX \"pulse_entries_timestamp_type_key_hash_value_index\" on \"pulse_entries\" (\"timestamp\", \"type\", \"key_hash\", \"value\")",
+          "table": "pulse_entries",
+          "columns": [
+            "timestamp",
+            "type",
+            "key_hash",
+            "value"
+          ]
+        },
+        {
+          "name": "pulse_entries_key_hash_index",
+          "def": "CREATE INDEX \"pulse_entries_key_hash_index\" on \"pulse_entries\" (\"key_hash\")",
+          "table": "pulse_entries",
+          "columns": [
+            "key_hash"
+          ]
+        },
+        {
+          "name": "pulse_entries_type_index",
+          "def": "CREATE INDEX \"pulse_entries_type_index\" on \"pulse_entries\" (\"type\")",
+          "table": "pulse_entries",
+          "columns": [
+            "type"
+          ]
+        },
+        {
+          "name": "pulse_entries_timestamp_index",
+          "def": "CREATE INDEX \"pulse_entries_timestamp_index\" on \"pulse_entries\" (\"timestamp\")",
+          "table": "pulse_entries",
+          "columns": [
+            "timestamp"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "pulse_entries",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"pulse_entries\" (\"id\" integer primary key autoincrement not null, \"timestamp\" integer not null, \"type\" varchar not null, \"key\" text not null, \"key_hash\" varchar not null, \"value\" integer)"
+    },
+    {
+      "name": "pulse_aggregates",
+      "type": "table",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "bucket",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "period",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "key",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "key_hash",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "aggregate",
+          "type": "varchar",
+          "nullable": false
+        },
+        {
+          "name": "value",
+          "type": "numeric",
+          "nullable": false
+        },
+        {
+          "name": "count",
+          "type": "INTEGER",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "pulse_aggregates_period_type_aggregate_bucket_index",
+          "def": "CREATE INDEX \"pulse_aggregates_period_type_aggregate_bucket_index\" on \"pulse_aggregates\" (\"period\", \"type\", \"aggregate\", \"bucket\")",
+          "table": "pulse_aggregates",
+          "columns": [
+            "period",
+            "type",
+            "aggregate",
+            "bucket"
+          ]
+        },
+        {
+          "name": "pulse_aggregates_type_index",
+          "def": "CREATE INDEX \"pulse_aggregates_type_index\" on \"pulse_aggregates\" (\"type\")",
+          "table": "pulse_aggregates",
+          "columns": [
+            "type"
+          ]
+        },
+        {
+          "name": "pulse_aggregates_period_bucket_index",
+          "def": "CREATE INDEX \"pulse_aggregates_period_bucket_index\" on \"pulse_aggregates\" (\"period\", \"bucket\")",
+          "table": "pulse_aggregates",
+          "columns": [
+            "period",
+            "bucket"
+          ]
+        },
+        {
+          "name": "pulse_aggregates_bucket_period_type_aggregate_key_hash_unique",
+          "def": "CREATE UNIQUE INDEX \"pulse_aggregates_bucket_period_type_aggregate_key_hash_unique\" on \"pulse_aggregates\" (\"bucket\", \"period\", \"type\", \"aggregate\", \"key_hash\")",
+          "table": "pulse_aggregates",
+          "columns": [
+            "bucket",
+            "period",
+            "type",
+            "aggregate",
+            "key_hash"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "pulse_aggregates",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE \"pulse_aggregates\" (\"id\" integer primary key autoincrement not null, \"bucket\" integer not null, \"period\" integer not null, \"type\" varchar not null, \"key\" text not null, \"key_hash\" varchar not null, \"aggregate\" varchar not null, \"value\" numeric not null, \"count\" integer)"
+    }
+  ],
+  "relations": [
+    {
+      "table": "passkeys",
+      "columns": [
+        "user_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "users",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (user_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE CASCADE MATCH NONE"
+    },
+    {
+      "table": "users",
+      "columns": [
+        "restaurant_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "restaurants",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "zero_or_one",
+      "def": "FOREIGN KEY (restaurant_id) REFERENCES restaurants (id) ON UPDATE NO ACTION ON DELETE NO ACTION MATCH NONE"
+    },
+    {
+      "table": "order_itens",
+      "columns": [
+        "order_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "orders",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (order_id) REFERENCES orders (id) ON UPDATE NO ACTION ON DELETE NO ACTION MATCH NONE"
+    },
+    {
+      "table": "order_itens",
+      "columns": [
+        "product_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "produts",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (product_id) REFERENCES produts (id) ON UPDATE NO ACTION ON DELETE NO ACTION MATCH NONE"
+    },
+    {
+      "table": "categories",
+      "columns": [
+        "restaurant_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "restaurants",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "zero_or_one",
+      "def": "FOREIGN KEY (restaurant_id) REFERENCES restaurants (id) ON UPDATE NO ACTION ON DELETE RESTRICT MATCH NONE"
+    },
+    {
+      "table": "produts",
+      "columns": [
+        "restaurant_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "restaurants",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "zero_or_one",
+      "def": "FOREIGN KEY (restaurant_id) REFERENCES restaurants (id) ON UPDATE NO ACTION ON DELETE RESTRICT MATCH NONE"
+    },
+    {
+      "table": "produts",
+      "columns": [
+        "category_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "categories",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (category_id) REFERENCES categories (id) ON UPDATE NO ACTION ON DELETE NO ACTION MATCH NONE"
+    },
+    {
+      "table": "orders",
+      "columns": [
+        "restaurant_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "restaurants",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "zero_or_one",
+      "def": "FOREIGN KEY (restaurant_id) REFERENCES restaurants (id) ON UPDATE NO ACTION ON DELETE RESTRICT MATCH NONE"
+    },
+    {
+      "table": "orders",
+      "columns": [
+        "customer_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "users",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (customer_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE NO ACTION MATCH NONE"
+    },
+    {
+      "table": "orders",
+      "columns": [
+        "user_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "users",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (user_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE NO ACTION MATCH NONE"
+    }
+  ],
+  "driver": {
+    "name": "sqlite",
+    "database_version": "3.53.4"
+  }
+}
