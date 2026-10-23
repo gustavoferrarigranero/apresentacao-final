@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Domains\Users\Actions\CreateRestaurantStaffAction;
+use App\Actions\Users\CreateRestaurantStaffAction;
 use App\Http\Requests\Api\Users\StoreRestaurantUserRequest;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\JsonResponse;

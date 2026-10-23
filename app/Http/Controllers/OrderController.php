@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Domains\Orders\Data\CreateOrderData;
-use App\Domains\Orders\Services\OrderService;
 use App\Events\OrderStatusUpdated;
 use App\Http\Requests\Api\Orders\IndexOrdersRequest;
 use App\Http\Requests\Api\Orders\StoreOrderRequest;
 use App\Http\Requests\Api\Orders\UpdateOrderStatusRequest;
 use App\Http\Resources\OrderResource;
+use App\Services\OrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -38,7 +38,7 @@ class OrderController extends Controller
 
     public function store(StoreOrderRequest $request): JsonResponse
     {
-        $order = $this->orderService->create($request->user(), CreateOrderData::fromValidated($request->validated()));
+        $order = $this->orderService->create($request->user(), CreateOrderData::from($request->validated()));
 
         return (new OrderResource($order))
             ->additional(['message' => 'Pedido criado com sucesso.'])

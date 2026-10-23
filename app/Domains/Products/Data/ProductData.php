@@ -2,11 +2,14 @@
 
 namespace App\Domains\Products\Data;
 
+use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
 /**
  * Define os dados usados pelo caso de uso `ProductData` no domínio de produtos; funciona como contrato interno entre validação e lógica de negócio.
  */
+#[MapName(SnakeCaseMapper::class)]
 final class ProductData extends Data
 {
     public function __construct(
@@ -16,26 +19,10 @@ final class ProductData extends Data
         public readonly ?int $quantity = null,
         public readonly ?int $categoryId = null,
         public readonly ?string $status = null,
-    ) {
-    }
+    ) {}
 
     /**
-     * @param array{name?: string, type?: string, price?: numeric-string|float|int, quantity?: numeric-string|int, category_id?: numeric-string|int, status?: string} $attributes
-     */
-    public static function fromValidated(array $attributes): self
-    {
-        return new self(
-            name: $attributes['name'] ?? null,
-            type: $attributes['type'] ?? null,
-            price: isset($attributes['price']) ? (float) $attributes['price'] : null,
-            quantity: isset($attributes['quantity']) ? (int) $attributes['quantity'] : null,
-            categoryId: isset($attributes['category_id']) ? (int) $attributes['category_id'] : null,
-            status: $attributes['status'] ?? null,
-        );
-    }
-
-    /**
-     * @return array<string, string|int|float>
+     * @return array<string, mixed>
      */
     public function attributes(): array
     {
@@ -46,6 +33,6 @@ final class ProductData extends Data
             'quantity' => $this->quantity,
             'category_id' => $this->categoryId,
             'status' => $this->status,
-        ], static fn (string|int|float|null $value): bool => $value !== null);
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

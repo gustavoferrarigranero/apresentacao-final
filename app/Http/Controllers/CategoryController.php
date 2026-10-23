@@ -9,7 +9,7 @@ use App\Http\Requests\Api\Categories\CreateCategoryRequest;
 use App\Http\Requests\Api\Categories\EditCategoryRequest;
 use App\Http\Requests\Api\Categories\IndexCategoryRequest;
 use App\Http\Resources\CategoryResource;
-use App\Domains\Categories\Services\CategoryService;
+use App\Services\CategoryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -19,16 +19,14 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
  */
 class CategoryController extends Controller
 {
-    public function __construct(private readonly CategoryService $categoryService)
-    {
-    }
+    public function __construct(private readonly CategoryService $categoryService) {}
 
     public function index(IndexCategoryRequest $request): AnonymousResourceCollection
     {
         return CategoryResource::collection(
             $this->categoryService->index(
                 (int) $request->user()->restaurant_id,
-                CategoryFiltersData::fromValidated($request->validated()),
+                CategoryFiltersData::from($request->validated()),
             )
         );
     }
