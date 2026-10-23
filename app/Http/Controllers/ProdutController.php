@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Domains\Products\Data\ProductData;
-use App\Domains\Products\Services\ProductService;
 use App\Http\Requests\Api\Products\IndexProductRequest;
 use App\Http\Requests\Api\Products\StoreProductRequest;
 use App\Http\Requests\Api\Products\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Restaurant;
+use App\Services\ProductService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -18,9 +18,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
  */
 class ProdutController extends Controller
 {
-    public function __construct(private readonly ProductService $productService)
-    {
-    }
+    public function __construct(private readonly ProductService $productService) {}
 
     public function index(IndexProductRequest $request, Restaurant $restaurant): AnonymousResourceCollection
     {
@@ -45,7 +43,7 @@ class ProdutController extends Controller
     {
         $product = $this->productService->store(
             (int) $request->user()->restaurant_id,
-            ProductData::fromValidated($request->validated()),
+            ProductData::from($request->validated()),
         );
 
         return (new ProductResource($product))
@@ -59,7 +57,7 @@ class ProdutController extends Controller
         return (new ProductResource($this->productService->update(
             (int) $request->user()->restaurant_id,
             $product,
-            ProductData::fromValidated($request->validated()),
+            ProductData::from($request->validated()),
         )))->additional(['message' => 'Produto atualizado com sucesso.']);
     }
 
@@ -70,5 +68,4 @@ class ProdutController extends Controller
             $product,
         )))->additional(['message' => 'Produto desativado com sucesso.']);
     }
-
 }

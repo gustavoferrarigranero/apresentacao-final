@@ -2,11 +2,14 @@
 
 namespace App\Domains\Restaurants\Data;
 
+use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
 /**
  * Define os dados usados pelo caso de uso `CreateRestaurantData` no domínio de restaurantes; funciona como contrato interno entre validação e lógica de negócio.
  */
+#[MapName(SnakeCaseMapper::class)]
 final class CreateRestaurantData extends Data
 {
     public function __construct(
@@ -17,22 +20,5 @@ final class CreateRestaurantData extends Data
         public readonly string $adminName,
         public readonly string $adminEmail,
         public readonly string $adminPassword,
-    ) {
-    }
-
-    /**
-     * @param array{name: string, address: string, phone_number: string, nif: string, admin_name: string, admin_email: string, admin_password: string} $attributes
-     */
-    public static function fromValidated(array $attributes): self
-    {
-        return new self(
-            name: $attributes['name'],
-            address: $attributes['address'],
-            phoneNumber: $attributes['phone_number'],
-            nif: $attributes['nif'],
-            adminName: $attributes['admin_name'],
-            adminEmail: $attributes['admin_email'],
-            adminPassword: $attributes['admin_password'],
-        );
-    }
+    ) {}
 }

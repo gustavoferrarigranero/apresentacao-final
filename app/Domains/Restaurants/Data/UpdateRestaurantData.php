@@ -2,11 +2,14 @@
 
 namespace App\Domains\Restaurants\Data;
 
+use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
 /**
  * Define os dados usados pelo caso de uso `UpdateRestaurantData` no domínio de restaurantes; funciona como contrato interno entre validação e lógica de negócio.
  */
+#[MapName(SnakeCaseMapper::class)]
 final class UpdateRestaurantData extends Data
 {
     public function __construct(
@@ -15,11 +18,10 @@ final class UpdateRestaurantData extends Data
         public readonly ?string $phoneNumber = null,
         public readonly ?string $nif = null,
         public readonly ?string $status = null,
-    ) {
-    }
+    ) {}
 
     /**
-     * @return array{name?: string, address?: string, phone_number?: string, nif?: string, status?: string}
+     * @return array<string, mixed>
      */
     public function attributes(): array
     {
@@ -29,20 +31,6 @@ final class UpdateRestaurantData extends Data
             'phone_number' => $this->phoneNumber,
             'nif' => $this->nif,
             'status' => $this->status,
-        ], static fn (?string $value): bool => $value !== null);
-    }
-
-    /**
-     * @param array{name?: string, address?: string, phone_number?: string, nif?: string, status?: string} $attributes
-     */
-    public static function fromValidated(array $attributes): self
-    {
-        return new self(
-            name: $attributes['name'] ?? null,
-            address: $attributes['address'] ?? null,
-            phoneNumber: $attributes['phone_number'] ?? null,
-            nif: $attributes['nif'] ?? null,
-            status: $attributes['status'] ?? null,
-        );
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

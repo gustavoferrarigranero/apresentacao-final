@@ -57,4 +57,5 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     {
         return $this->belongsTo(Restaurant::class);
     }
+
 }

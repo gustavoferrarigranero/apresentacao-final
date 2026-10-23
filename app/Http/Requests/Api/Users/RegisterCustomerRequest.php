@@ -30,6 +30,6 @@ class RegisterCustomerRequest extends FormRequest
 
     public function registrationData(): CustomerRegistrationData
     {
-        return CustomerRegistrationData::fromValidated($this->validated());
+        return CustomerRegistrationData::from($this->validated());
     }
 }

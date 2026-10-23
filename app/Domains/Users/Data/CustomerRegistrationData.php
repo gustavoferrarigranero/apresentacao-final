@@ -15,16 +15,4 @@ final class CustomerRegistrationData extends Data
         public readonly string $password,
     ) {
     }
-
-    /**
-     * @param array{name: string, email: string, password: string} $attributes
-     */
-    public static function fromValidated(array $attributes): self
-    {
-        return new self(
-            name: $attributes['name'],
-            email: $attributes['email'],
-            password: $attributes['password'],
-        );
-    }
 }

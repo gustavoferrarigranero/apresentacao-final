@@ -9,7 +9,7 @@ use App\Http\Requests\Api\Restaurants\CreateRestaurantRequest;
 use App\Http\Requests\Api\Restaurants\IndexRestaurantRequest;
 use App\Http\Requests\Api\Restaurants\UpdateRestaurantRequest;
 use App\Http\Resources\RestaurantResource;
-use App\Domains\Restaurants\Services\RestaurantService;
+use App\Services\RestaurantService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -19,16 +19,14 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
  */
 class RestaurantController extends Controller
 {
-    public function __construct(private readonly RestaurantService $restaurantService)
-    {
-    }
+    public function __construct(private readonly RestaurantService $restaurantService) {}
 
     public function index(IndexRestaurantRequest $request): AnonymousResourceCollection
     {
         return RestaurantResource::collection(
             $this->restaurantService->index(
                 $request->user(),
-                RestaurantFiltersData::fromValidated($request->validated()),
+                RestaurantFiltersData::from($request->validated()),
             )
         );
     }
@@ -36,7 +34,7 @@ class RestaurantController extends Controller
     public function store(CreateRestaurantRequest $request): JsonResponse
     {
         $restaurant = $this->restaurantService->store(
-            CreateRestaurantData::fromValidated($request->validated()),
+            CreateRestaurantData::from($request->validated()),
         );
 
         return (new RestaurantResource($restaurant))
@@ -56,7 +54,7 @@ class RestaurantController extends Controller
             $this->restaurantService->update(
                 $request->user(),
                 $restaurant,
-                UpdateRestaurantData::fromValidated($request->validated()),
+                UpdateRestaurantData::from($request->validated()),
             )
         ))->additional(['message' => 'Restaurante atualizado com sucesso.']);
     }

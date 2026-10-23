@@ -28,6 +28,6 @@ class StoreRestaurantUserRequest extends FormRequest
 
     public function staffData(): CreateStaffData
     {
-        return CreateStaffData::fromValidated($this->validated());
+        return CreateStaffData::from($this->validated());
     }
 }

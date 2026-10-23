@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Domains\Users\Actions\ManageAuthenticationAction;
+use App\Actions\Users\ManageAuthenticationAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Users\ForgotPasswordRequest;
 use App\Http\Requests\Api\Users\LoginRequest;
